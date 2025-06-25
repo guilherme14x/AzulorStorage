@@ -2,224 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Gestão de Encomendas de Clientes</title>
+  <title>Gestão de Clientes e Encomendas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    :root {
-      --primary: #2563eb;
-      --success: #10b981;
-      --danger: #dc2626;
-      --gray: #f3f4f6;
-      --radius: 8px;
-      --shadow: 0 2px 12px rgba(0,0,0,0.06);
-    }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: var(--gray);
-    }
-    .container {
-      max-width: 1100px;
-      margin: 32px auto;
-      background: #fff;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 32px 24px;
-    }
-    .header-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .header-bar h1 { font-size: 1.7em; font-weight: 700; margin: 0; }
-    nav {
-      display: flex; gap: 12px; margin: 28px 0 18px 0;
-    }
-    nav button {
-      background: none;
-      border: none;
-      font-size: 1em;
-      padding: 8px 18px;
-      border-radius: var(--radius);
-      cursor: pointer;
-      color: #333;
-      transition: background 0.2s;
-    }
-    nav button.active, nav button:hover {
-      background: var(--primary);
-      color: #fff;
-    }
-    .section { display: none; }
-    .section.active { display: block; }
-    .panel {
-      background: var(--gray);
-      border-radius: var(--radius);
-      margin-bottom: 30px;
-      padding: 18px 20px 8px 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    }
-    .panel h2 { margin-top: 0; font-size: 1.2em; font-weight: 600; }
-    table { width: 100%; border-collapse: collapse; background: #fff; }
-    th, td { padding: 10px 8px; border-bottom: 1px solid #eee; text-align: left; }
-    th { background: #f9fafb; font-weight: 600; }
-    tr:last-child td { border-bottom: none; }
-    .actions button {
-      margin-right: 5px; padding: 4px 10px; border-radius: 4px;
-      border: none; font-size: 0.95em; cursor: pointer;
-    }
-    .actions .edit    { background: var(--primary); color: #fff;}
-    .actions .delete  { background: var(--danger); color: #fff;}
-    .actions .view    { background: var(--success); color: #fff;}
+    body { margin:0; background:#f3f4f6; font-family:sans-serif;}
+    .container { max-width:1000px; margin:36px auto; background:#fff; border-radius:10px; box-shadow:0 2px 8px #0003; padding:32px 24px;}
+    h1 { margin-top:0;}
+    .panel { background:#f6f8fa; border-radius:8px; margin-bottom:30px; padding:18px 22px; box-shadow:0 1px 4px #0001;}
+    .panel h2 { margin-top:0; font-size:1.2em;}
+    table { width:100%; border-collapse:collapse; background:#fff;}
+    th, td { padding:10px 8px; border-bottom:1px solid #eee; text-align:left;}
+    th { background:#f9fafb; font-weight:600; }
+    tr:last-child td { border-bottom:none;}
+    .actions button { margin-right:5px; padding:4px 10px; border-radius:4px; border:none; font-size:0.95em; cursor:pointer;}
+    .actions .edit { background:#2563eb; color:#fff;}
+    .actions .delete { background:#dc2626; color:#fff;}
+    .actions .view { background:#10b981; color:#fff;}
     .floating-btn {
-      background: var(--primary); color: #fff;
-      border: none; border-radius: 100px; font-size: 1.3em;
-      width: 40px; height: 40px; position: absolute;
-      right: 24px; top: 18px; cursor: pointer;
-      box-shadow: 0 2px 8px rgba(37,99,235,0.18);
+      background:#2563eb; color:#fff; border:none; border-radius:100px; font-size:1.3em; width:40px; height:40px;
+      position:absolute; right:24px; top:18px; cursor:pointer; box-shadow:0 2px 8px #2563eb29;
     }
     .modal-bg {
-      background: rgba(0,0,0,0.18);
-      position: fixed; inset: 0; display: none; z-index: 50;
+      background:rgba(0,0,0,0.18); position:fixed; inset:0; display:none; z-index:50;
     }
-    .modal-bg.active { display: flex; align-items: center; justify-content: center; }
+    .modal-bg.active { display:flex; align-items:center; justify-content:center; }
     .modal {
-      background: #fff; padding: 32px 26px 20px 26px; border-radius: var(--radius);
-      min-width: 320px; min-height: 120px; box-shadow: var(--shadow);
-      display: flex; flex-direction: column; gap: 14px; position: relative;
+      background:#fff; padding:32px 26px 20px 26px; border-radius:8px; min-width:340px; min-height:120px; box-shadow:0 2px 12px #0003;
+      display:flex; flex-direction:column; gap:14px; position:relative;
     }
     .modal-close {
-      position: absolute; top: 10px; right: 10px;
-      background: none; border: none; font-size: 1.3em; color: #aaa; cursor: pointer;
+      position:absolute; top:10px; right:10px; background:none; border:none; font-size:1.3em; color:#aaa; cursor:pointer;
     }
-    .modal label { display: block; margin-bottom: 8px; }
-    .modal input, .modal select {
-      width: 100%; font-size: 1em; padding: 8px;
-      border: 1px solid #dbdbdb; border-radius: 4px; margin-bottom: 10px;
+    .modal label { display:block; margin-bottom:8px;}
+    .modal input, .modal textarea {
+      width:100%; font-size:1em; padding:8px; border:1px solid #dbdbdb; border-radius:4px; margin-bottom:10px;
     }
-    .modal-actions {
-      margin-top: 12px; display: flex; justify-content: flex-end; gap: 10px;
-    }
+    .modal-actions { margin-top:12px; display:flex; justify-content:flex-end; gap:10px;}
     .modal-actions button {
-      font-size: 1em; padding: 7px 20px; border-radius: 6px; border: none; cursor: pointer;
+      font-size:1em; padding:7px 20px; border-radius:6px; border:none; cursor:pointer;
     }
-    .modal-actions .save { background: var(--primary); color: #fff;}
-    .modal-actions .cancel { background: #e5e7eb; color: #333;}
+    .modal-actions .save { background:#2563eb; color:#fff;}
+    .modal-actions .cancel { background:#e5e7eb; color:#333;}
     .notification {
-      position: fixed; right: 24px; top: 24px;
-      background: var(--primary); color: #fff; padding: 15px 28px;
-      border-radius: 7px; font-size: 1.1em; z-index: 200; box-shadow: var(--shadow);
-      opacity: 0.97; display: none;
+      position:fixed; right:24px; top:24px; background:#2563eb; color:#fff; padding:15px 28px; border-radius:7px; font-size:1.1em;
+      z-index:200; box-shadow:0 2px 12px #0003; opacity:0.97; display:none;
     }
-    .notification.error { background: var(--danger);}
-    #login-overlay {
-      position: fixed; inset: 0; z-index: 1000; background: #f3f4f680;
-      display: flex; align-items: center; justify-content: center;
+    .notification.error { background:#dc2626;}
+    .req-list { margin:0; padding-left:22px; }
+    .req-list li { margin-bottom:2px;}
+    .req-actions button {
+      background: #f59e42; color:#fff; border:none; border-radius:4px; padding:2px 7px; font-size:0.92em; margin-left: 6px; cursor:pointer;
     }
-    #login-card {
-      background: #fff; box-shadow: var(--shadow); border-radius: var(--radius);
-      padding: 32px 40px 28px 40px; min-width: 340px; display: flex;
-      flex-direction: column; gap: 12px;
-    }
-    #login-card h2 { margin: 0 0 10px 0; }
-    #login-card input {
-      padding: 9px; font-size: 1em; border-radius: 5px; border: 1px solid #ddd; margin-bottom: 16px;
-    }
-    #login-card button {
-      background: var(--primary); color: #fff; border: none; border-radius: 6px;
-      font-size: 1em; padding: 10px 0; cursor: pointer;
-    }
-    #login-card .error { color: var(--danger); margin-bottom: 8px; font-size: 0.98em; }
-    .status-tag {
-      font-size: 0.92em; border-radius: 6px; padding: 2px 10px; color: #fff; margin-right: 4px;
-      display: inline-block;
-    }
-    .status-pendente  { background: #f59e42; }
-    .status-entregue  { background: #10b981; }
-    .status-cancelada { background: #dc2626; }
-    @media (max-width: 700px) {
-      .container { padding: 10px 3vw;}
-      .modal { min-width: 90vw; }
-    }
+    .req-actions .edit { background:#2563eb;}
+    .req-actions .delete { background:#dc2626;}
+    .req-add-form { display: flex; gap: 8px; margin-top: 8px;}
+    .req-add-form input { flex: 1; }
+    @media (max-width:700px) { .container { padding:10px 3vw;} .modal { min-width:90vw; } }
   </style>
 </head>
 <body>
-<div class="container" id="app" style="display:none;">
-  <div class="header-bar">
-    <h1>Gestão de Encomendas de Clientes</h1>
-    <button class="actions delete" id="logoutBtn" onclick="logout()" style="font-size:1em;">Logout</button>
+<div class="container">
+  <h1>Clientes e Encomendas</h1>
+  <div class="panel" style="position:relative;">
+    <h2>Clientes</h2>
+    <button class="floating-btn" onclick="openClientModal()">+</button>
+    <table>
+      <thead>
+        <tr><th>Nome</th><th>Contacto</th><th>Pedidos</th><th>Ações</th></tr>
+      </thead>
+      <tbody id="clients-list"></tbody>
+    </table>
   </div>
-  <nav>
-    <button class="tablink active" onclick="showTab('orders')">Encomendas</button>
-    <button class="tablink" onclick="showTab('clients')">Clientes</button>
-    <button class="tablink" onclick="showTab('articles')">Artigos</button>
-    <button class="tablink" onclick="showTab('stock')">Stock</button>
-  </nav>
-  <!-- ORDERS -->
-  <section class="section active" id="orders-section">
-    <div class="panel" style="position:relative;">
-      <h2>Encomendas</h2>
-      <button class="floating-btn" onclick="openOrderModal()">+</button>
-      <table>
-        <thead>
-          <tr>
-            <th>#</th><th>Cliente</th><th>Data</th><th>Status</th><th>Artigos</th><th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="orders-list"></tbody>
-      </table>
-    </div>
-  </section>
-  <!-- CLIENTS -->
-  <section class="section" id="clients-section">
-    <div class="panel" style="position:relative;">
-      <h2>Clientes</h2>
-      <button class="floating-btn" onclick="openClientModal()">+</button>
-      <table>
-        <thead>
-          <tr><th>Nome</th><th>Contacto</th><th>Email</th><th>Actions</th></tr>
-        </thead>
-        <tbody id="clients-list"></tbody>
-      </table>
-    </div>
-  </section>
-  <!-- ARTICLES -->
-  <section class="section" id="articles-section">
-    <div class="panel" style="position:relative;">
-      <h2>Artigos</h2>
-      <button class="floating-btn" onclick="openArticleModal()">+</button>
-      <table>
-        <thead>
-          <tr><th>SKU</th><th>Nome</th><th>Descrição</th><th>Actions</th></tr>
-        </thead>
-        <tbody id="articles-list"></tbody>
-      </table>
-    </div>
-  </section>
-  <!-- STOCK -->
-  <section class="section" id="stock-section">
-    <div class="panel" style="position:relative;">
-      <h2>Stock</h2>
-      <button class="floating-btn" onclick="openStockModal()">+</button>
-      <table>
-        <thead>
-          <tr><th>SKU</th><th>Nome</th><th>Em Stock</th><th>Actions</th></tr>
-        </thead>
-        <tbody id="stock-list"></tbody>
-      </table>
-    </div>
-  </section>
 </div>
-<!-- LOGIN OVERLAY -->
-<div id="login-overlay">
-  <form id="login-card" onsubmit="return login(event)">
-    <h2>Sign In</h2>
-    <input type="text" id="login-username" placeholder="Username" autocomplete="username" required>
-    <input type="password" id="login-password" placeholder="Password" autocomplete="current-password" required>
-    <div id="login-error" class="error"></div>
-    <button type="submit">Login</button>
-  </form>
-</div>
-<!-- MODAL UNIVERSAL -->
+<!-- MODAL -->
 <div class="modal-bg" id="modal-bg">
   <form class="modal" id="modal-form" onsubmit="return modalSave(event)">
     <button type="button" class="modal-close" onclick="closeModal()">&times;</button>
@@ -231,45 +86,9 @@
 <!-- NOTIFICATION -->
 <div class="notification" id="notification"></div>
 <script>
-const LS_USER = 'orders_user';
-const LS_CLIENTS = 'orders_clients';
-const LS_ARTICLES = 'orders_articles';
-const LS_STOCK = 'orders_stock';
-const LS_ORDERS = 'orders_orders';
-const VALID_USER = "admin";
-const VALID_PASS = "admin";
-
-function showApp(logged) {
-  document.getElementById('login-overlay').style.display = logged ? 'none' : 'flex';
-  document.getElementById('app').style.display = logged ? '' : 'none';
-}
-function checkAuth() {
-  if (localStorage.getItem(LS_USER)) showApp(true);
-  else showApp(false);
-}
-function login(e) {
-  e.preventDefault();
-  let user = document.getElementById('login-username').value;
-  let pass = document.getElementById('login-password').value;
-  if (user === VALID_USER && pass === VALID_PASS) {
-      localStorage.setItem(LS_USER, user);
-      showNotification("Logged in!", false);
-      showApp(true);
-      setTimeout(()=>{renderAll();},100);
-  } else {
-      document.getElementById('login-error').textContent = "Invalid credentials";
-      return false;
-  }
-  return false;
-}
-function logout() {
-  if (confirm("Logout?")) {
-      localStorage.removeItem(LS_USER);
-      location.reload();
-  }
-}
-function getData(key) { return JSON.parse(localStorage.getItem(key)||'[]'); }
-function setData(key, arr) { localStorage.setItem(key, JSON.stringify(arr)); }
+const LS_CLIENTS = 'clients_and_requests_better_v2';
+function getClients() { return JSON.parse(localStorage.getItem(LS_CLIENTS)||'[]'); }
+function setClients(arr) { localStorage.setItem(LS_CLIENTS, JSON.stringify(arr)); }
 function showNotification(msg, isError) {
   let n = document.getElementById('notification');
   n.textContent = msg;
@@ -277,22 +96,138 @@ function showNotification(msg, isError) {
   n.style.display = "block";
   setTimeout(()=>{ n.style.display = "none"; }, 1900);
 }
-function showTab(tab) {
-  Array.from(document.querySelectorAll('.section')).forEach(el=>el.classList.remove('active'));
-  document.getElementById(tab+'-section').classList.add('active');
-  Array.from(document.querySelectorAll('.tablink')).forEach(el=>el.classList.remove('active'));
-  let idx = ['orders','clients','articles','stock'].indexOf(tab);
-  document.querySelectorAll('.tablink')[idx].classList.add('active');
+function renderClients() {
+  let clients = getClients();
+  let tbody = '';
+  for(let c of clients) {
+    tbody += `<tr>
+      <td><a href="#" style="color:#2563eb;text-decoration:underline;" onclick="showClientDetail('${c.id}');return false;">${c.name}</a></td>
+      <td>${c.contact}</td>
+      <td>${c.requests?.length || 0}</td>
+      <td class="actions">
+        <button class="view" onclick="showClientDetail('${c.id}')">Ver</button>
+        <button class="edit" onclick="openClientModal('${c.id}')">Editar</button>
+        <button class="delete" onclick="deleteClient('${c.id}')">Remover</button>
+      </td>
+    </tr>`;
+  }
+  document.getElementById('clients-list').innerHTML = tbody;
 }
-
-// Modal logic
+// MODALS
 let modalContext = {};
-function openModal(title, body, actionsHtml, saveHandler) {
-  document.getElementById('modal-title').innerHTML = title;
-  document.getElementById('modal-body').innerHTML = body;
-  document.getElementById('modal-actions').innerHTML = actionsHtml;
-  modalContext.saveHandler = saveHandler;
+function openClientModal(editId) {
+  let c = {name:"", contact:"", requests:[]}, edit=false;
+  if(editId) {
+    c = getClients().find(x=>x.id===editId) || c;
+    edit = true;
+  }
+  let requestsInput = !edit ? `<label>Primeiro pedido do cliente:<textarea id="cli-requests" rows="2" placeholder="Ex: Orçamento para 10 lâmpadas"></textarea></label>` : "";
+  document.getElementById('modal-title').innerHTML = edit ? "Editar Cliente" : "Novo Cliente";
+  document.getElementById('modal-body').innerHTML =
+    `<label>Nome: <input id="cli-name" value="${c.name}" required></label>
+     <label>Contacto: <input id="cli-contact" value="${c.contact}" required></label>
+     ${requestsInput}`;
+  document.getElementById('modal-actions').innerHTML =
+    `<button type="button" class="cancel" onclick="closeModal()">Cancelar</button>
+     <button type="submit" class="save">${edit ? "Guardar" : "Adicionar"}</button>`;
+  modalContext = {
+    saveHandler: ()=>{
+      let name = document.getElementById('cli-name').value.trim();
+      let contact = document.getElementById('cli-contact').value.trim();
+      if(!name || !contact) { showNotification("Nome e contacto obrigatórios.",1); return false;}
+      let clients = getClients();
+      if(edit) {
+        let idx = clients.findIndex(x=>x.id===editId);
+        clients[idx] = {...clients[idx], name, contact};
+      } else {
+        let id = "C"+Date.now();
+        let reqs = document.getElementById('cli-requests').value.trim();
+        let requests = reqs ? reqs.split(/\n|;/).map(e=>e.trim()).filter(Boolean) : [];
+        clients.push({id, name, contact, requests});
+      }
+      setClients(clients); renderClients(); closeModal();
+      showNotification("Cliente salvo!");
+      return false;
+    }
+  };
   document.getElementById('modal-bg').classList.add('active');
+}
+function showClientDetail(clientId) {
+  let clients = getClients();
+  let c = clients.find(x=>x.id===clientId);
+  if(!c) return;
+  document.getElementById('modal-title').innerHTML = `Cliente: ${c.name}`;
+  let reqList = (c.requests||[]).map((r,i)=>`
+    <li id="req-li-${i}">
+      <span id="req-span-${i}">${r}</span>
+      <span class="req-actions">
+        <button class="edit" onclick="editRequest('${c.id}',${i})">Editar</button>
+        <button class="delete" onclick="removeRequest('${c.id}',${i})">Remover</button>
+      </span>
+    </li>
+  `).join("");
+  document.getElementById('modal-body').innerHTML =
+    `<b>Contacto:</b> ${c.contact}<br><b>Pedidos:</b>
+    <ul class="req-list" id="req-list-detail">${reqList || '<i>Nenhum pedido registrado.</i>'}</ul>
+    <form class="req-add-form" onsubmit="return addRequestFromDetail('${c.id}')">
+      <input id="req-input-detail" placeholder="Novo pedido..." required>
+      <button type="submit" class="save" style="padding:4px 12px;">Adicionar</button>
+    </form>`;
+  document.getElementById('modal-actions').innerHTML =
+    `<button type="button" class="cancel" onclick="closeModal()">Fechar</button>
+     <button type="button" class="edit" onclick="openClientModal('${c.id}')">Editar Cliente</button>
+     <button type="button" class="delete" onclick="deleteClient('${c.id}')">Remover Cliente</button>`;
+  modalContext = {};
+  document.getElementById('modal-bg').classList.add('active');
+}
+function addRequestFromDetail(clientId) {
+  let val = document.getElementById('req-input-detail').value.trim();
+  if(!val) return false;
+  let clients = getClients();
+  let idx = clients.findIndex(x=>x.id===clientId);
+  if(idx<0) return false;
+  if(!Array.isArray(clients[idx].requests)) clients[idx].requests = [];
+  clients[idx].requests.push(val);
+  setClients(clients);
+  showClientDetail(clientId);
+  showNotification("Pedido adicionado!");
+  return false;
+}
+function editRequest(clientId, reqIdx) {
+  let clients = getClients();
+  let c = clients.find(x=>x.id===clientId);
+  let old = c?.requests?.[reqIdx] || "";
+  let span = document.getElementById(`req-span-${reqIdx}`);
+  if(!span) return;
+  span.innerHTML = `<input id="edit-req-input" value="${old}" style="width:80%;"> <button onclick="saveReqEdit('${clientId}',${reqIdx})" class="save" style="padding:2px 10px;">Salvar</button>`;
+}
+function saveReqEdit(clientId, reqIdx) {
+  let val = document.getElementById('edit-req-input').value.trim();
+  if(!val) return false;
+  let clients = getClients();
+  let cidx = clients.findIndex(x=>x.id===clientId);
+  if(cidx<0) return false;
+  clients[cidx].requests[reqIdx] = val;
+  setClients(clients);
+  showClientDetail(clientId);
+  showNotification("Pedido atualizado!");
+  return false;
+}
+function removeRequest(clientId, reqIdx) {
+  if(!confirm("Remover este pedido?")) return;
+  let clients = getClients();
+  let idx = clients.findIndex(x=>x.id===clientId);
+  if(idx<0) return;
+  clients[idx].requests.splice(reqIdx,1);
+  setClients(clients); showClientDetail(clientId); renderClients();
+  showNotification("Pedido removido.");
+}
+function deleteClient(id) {
+  if(!confirm("Remover cliente? Isso apagará também todos os pedidos.")) return;
+  let clients = getClients().filter(x=>x.id!==id);
+  setClients(clients); renderClients();
+  closeModal();
+  showNotification("Cliente removido.");
 }
 function closeModal() {
   document.getElementById('modal-bg').classList.remove('active');
@@ -300,341 +235,18 @@ function closeModal() {
 }
 function modalSave(e) {
   e.preventDefault();
-  if (modalContext.saveHandler) return modalContext.saveHandler();
+  if(modalContext.saveHandler) return modalContext.saveHandler();
   return false;
 }
-// --- Clients ---
-function renderClients() {
-  let clients = getData(LS_CLIENTS);
-  let tbody = '';
-  for(let c of clients) {
-    tbody += `<tr>
-      <td>${c.name}</td>
-      <td>${c.contact}</td>
-      <td>${c.email||''}</td>
-      <td class="actions">
-        <button class="edit" onclick="editClient('${c.id}')">Editar</button>
-        <button class="delete" onclick="deleteClient('${c.id}')">Remover</button>
-      </td>
-    </tr>`;
-  }
-  document.getElementById('clients-list').innerHTML = tbody;
-}
-function openClientModal(editId) {
-  let c = {name:"", contact:"", email:""};
-  let edit = false;
-  if(editId) {
-    c = getData(LS_CLIENTS).find(x=>x.id===editId) || c;
-    edit = true;
-  }
-  openModal(
-    edit ? "Editar Cliente" : "Novo Cliente",
-    `<label>Nome: <input id="cli-name" value="${c.name}" required></label>
-     <label>Contacto: <input id="cli-contact" value="${c.contact}" required></label>
-     <label>Email: <input id="cli-email" value="${c.email||""}" type="email"></label>`,
-    `<button type="button" class="cancel" onclick="closeModal()">Cancelar</button>
-     <button type="submit" class="save">${edit ? "Guardar" : "Adicionar"}</button>`,
-    ()=>{
-      let name = document.getElementById('cli-name').value.trim();
-      let contact = document.getElementById('cli-contact').value.trim();
-      let email = document.getElementById('cli-email').value.trim();
-      if(!name || !contact) { showNotification("Nome e contacto são obrigatórios.",1); return false; }
-      let clients = getData(LS_CLIENTS);
-      if(edit) {
-        let idx = clients.findIndex(x=>x.id===editId);
-        clients[idx] = {...clients[idx], name, contact, email};
-      } else {
-        let id = "C"+Date.now();
-        clients.push({id, name, contact, email});
-      }
-      setData(LS_CLIENTS, clients); renderClients(); closeModal();
-      showNotification("Cliente salvo!");
-      return false;
-    }
-  );
-}
-function editClient(id) { openClientModal(id); }
-function deleteClient(id) {
-  if(!confirm("Remover cliente?")) return;
-  let clients = getData(LS_CLIENTS).filter(x=>x.id!==id);
-  setData(LS_CLIENTS, clients); renderClients();
-  showNotification("Cliente removido.");
-}
-// --- Articles ---
-function renderArticles() {
-  let articles = getData(LS_ARTICLES);
-  let tbody = '';
-  for(let a of articles) {
-    tbody += `<tr>
-      <td>${a.sku}</td>
-      <td>${a.name}</td>
-      <td>${a.desc}</td>
-      <td class="actions">
-        <button class="edit" onclick="editArticle('${a.sku}')">Editar</button>
-        <button class="delete" onclick="deleteArticle('${a.sku}')">Remover</button>
-      </td>
-    </tr>`;
-  }
-  document.getElementById('articles-list').innerHTML = tbody;
-}
-function openArticleModal(editSKU) {
-  let a = {sku:"", name:"", desc:""}; let edit = false;
-  if(editSKU) { a = getData(LS_ARTICLES).find(x=>x.sku===editSKU)||a; edit=true; }
-  openModal(
-    edit ? "Editar Artigo" : "Novo Artigo",
-    `<label>SKU: <input id="art-sku" value="${a.sku}" ${edit?'readonly':''} required></label>
-     <label>Nome: <input id="art-name" value="${a.name}" required></label>
-     <label>Descrição: <input id="art-desc" value="${a.desc}" required></label>`,
-    `<button type="button" class="cancel" onclick="closeModal()">Cancelar</button>
-     <button type="submit" class="save">${edit ? "Guardar" : "Adicionar"}</button>`,
-    ()=>{
-      let sku = document.getElementById('art-sku').value.trim();
-      let name = document.getElementById('art-name').value.trim();
-      let desc = document.getElementById('art-desc').value.trim();
-      if(!sku || !name) { showNotification("SKU e nome obrigatórios.",1); return false; }
-      let articles = getData(LS_ARTICLES);
-      if(edit) {
-        let idx = articles.findIndex(x=>x.sku===editSKU);
-        articles[idx] = {...articles[idx], name, desc};
-      } else {
-        if(articles.some(x=>x.sku===sku)) { showNotification("SKU já existe!",1); return false; }
-        articles.push({sku, name, desc});
-      }
-      setData(LS_ARTICLES, articles); renderArticles(); closeModal();
-      showNotification("Artigo salvo!");
-      return false;
-    }
-  );
-}
-function editArticle(sku) { openArticleModal(sku); }
-function deleteArticle(sku) {
-  if(!confirm("Remover artigo?")) return;
-  let articles = getData(LS_ARTICLES).filter(x=>x.sku!==sku);
-  setData(LS_ARTICLES, articles); renderArticles(); renderStock();
-  showNotification("Artigo removido.");
-}
-// --- Stock ---
-function renderStock() {
-  let stock = getData(LS_STOCK);
-  let articles = getData(LS_ARTICLES);
-  let tbody = '';
-  for(let s of stock) {
-    let a = articles.find(x=>x.sku===s.sku);
-    tbody += `<tr>
-      <td>${s.sku}</td>
-      <td>${a ? a.name : "[Removido]"}</td>
-      <td>${s.qty}</td>
-      <td class="actions">
-        <button class="edit" onclick="editStock('${s.sku}')">Editar</button>
-        <button class="delete" onclick="deleteStock('${s.sku}')">Remover</button>
-      </td>
-    </tr>`;
-  }
-  document.getElementById('stock-list').innerHTML = tbody;
-}
-function openStockModal(editSKU) {
-  let articles = getData(LS_ARTICLES);
-  let stock = getData(LS_STOCK);
-  let s = {sku:"", qty:""}; let edit = false;
-  if(editSKU) { s = stock.find(x=>x.sku===editSKU)||s; edit=true; }
-  let options = `<option value="">Escolha artigo</option>`;
-  for(let a of articles) options += `<option value="${a.sku}">${a.sku} - ${a.name}</option>`;
-  openModal(
-    edit ? "Editar Stock" : "Adicionar Stock",
-    `<label>Artigo: <select id="st-sku" ${edit?"disabled":""}>${options}</select></label>
-     <label>Quantidade: <input type="number" id="st-qty" value="${s.qty}" min="0" required></label>`,
-    `<button type="button" class="cancel" onclick="closeModal()">Cancelar</button>
-     <button type="submit" class="save">${edit ? "Guardar" : "Adicionar"}</button>`,
-    ()=>{
-      let sku = document.getElementById('st-sku').value;
-      let qty = parseInt(document.getElementById('st-qty').value,10);
-      if(!sku || isNaN(qty)) { showNotification("Artigo e quantidade obrigatórios.",1); return false; }
-      let stock = getData(LS_STOCK);
-      if(edit) {
-        let idx = stock.findIndex(x=>x.sku===editSKU);
-        stock[idx].qty = qty;
-      } else {
-        let s = stock.find(x=>x.sku===sku);
-        if(s) s.qty += qty;
-        else stock.push({sku, qty});
-      }
-      setData(LS_STOCK, stock); renderStock(); closeModal();
-      showNotification("Stock salvo!");
-      return false;
-    }
-  );
-}
-function editStock(sku) { openStockModal(sku);}
-function deleteStock(sku) {
-  if(!confirm("Remover stock deste artigo?")) return;
-  let stock = getData(LS_STOCK).filter(x=>x.sku!==sku);
-  setData(LS_STOCK, stock); renderStock();
-  showNotification("Stock removido.");
-}
-// --- Orders ---
-function renderOrders() {
-  let orders = getData(LS_ORDERS);
-  let clients = getData(LS_CLIENTS);
-  let articles = getData(LS_ARTICLES);
-  let tbody = '';
-  for(let o of orders) {
-    let c = clients.find(x=>x.id===o.clientId);
-    let artList = o.items.map(i=>{
-      let a = articles.find(x=>x.sku===i.sku);
-      return (a?a.name:"[Removido]")+" x"+i.qty;
-    }).join(", ");
-    tbody += `<tr>
-      <td>${o.orderNum}</td>
-      <td>${c?c.name:"[Removido]"}</td>
-      <td>${o.date}</td>
-      <td>${orderStatusTag(o.status)}</td>
-      <td>${artList}</td>
-      <td class="actions">
-        <button class="view" onclick="viewOrder('${o.id}')">Ver</button>
-        <button class="edit" onclick="editOrder('${o.id}')">Editar</button>
-        <button class="delete" onclick="deleteOrder('${o.id}')">Remover</button>
-      </td>
-    </tr>`;
-  }
-  document.getElementById('orders-list').innerHTML = tbody;
-}
-function orderStatusTag(status) {
-  let stclass = "status-"+status;
-  let label = status==="pendente"?"Pendente":status==="entregue"?"Entregue":"Cancelada";
-  return `<span class="status-tag ${stclass}">${label}</span>`;
-}
-function openOrderModal(editId) {
-  let clients = getData(LS_CLIENTS);
-  let articles = getData(LS_ARTICLES);
-  let stock = getData(LS_STOCK);
-  let order = {clientId:"", items:[], date: (new Date().toLocaleDateString()), status:"pendente"}, edit=false, orderNum="";
-  if(editId) {
-    let o = getData(LS_ORDERS).find(x=>x.id===editId);
-    if(o) { order = {...o}; edit = true; orderNum = o.orderNum; }
-  }
-  let clientOpts = `<option value="">Escolha cliente</option>`;
-  for(let c of clients) clientOpts+=`<option value="${c.id}" ${order.clientId===c.id?"selected":""}>${c.name}</option>`;
-  let articleRows = articles.map(a=>{
-    let s = stock.find(st=>st.sku===a.sku);
-    let max = s?s.qty:0;
-    let found = order.items.find(i=>i.sku===a.sku);
-    return `<tr>
-      <td>${a.sku}</td>
-      <td>${a.name}</td>
-      <td><input type="number" min="0" max="${max}" value="${found?found.qty:0}" style="width:70px" id="ord-qty-${a.sku}"> (Disp: ${max})</td>
-    </tr>`;
-  }).join("");
-  openModal(
-    (edit?"Editar":"Nova")+" Encomenda",
-    `<label>Cliente: <select id="ord-client" required>${clientOpts}</select></label>
-     <label>Data: <input type="date" id="ord-date" value="${order.date.split('/').reverse().join('-')}" required></label>
-     <table style="margin:10px 0 0 0;">
-      <tr><th>SKU</th><th>Artigo</th><th>Quantidade</th></tr>
-      ${articleRows}
-     </table>
-     <label>Status:
-        <select id="ord-status">
-          <option value="pendente" ${order.status==="pendente"?"selected":""}>Pendente</option>
-          <option value="entregue" ${order.status==="entregue"?"selected":""}>Entregue</option>
-          <option value="cancelada" ${order.status==="cancelada"?"selected":""}>Cancelada</option>
-        </select>
-     </label>`,
-    `<button type="button" class="cancel" onclick="closeModal()">Cancelar</button>
-     <button type="submit" class="save">${edit?"Guardar":"Adicionar"}</button>`,
-    ()=>{
-      let clientId = document.getElementById('ord-client').value;
-      let date = document.getElementById('ord-date').value;
-      let status = document.getElementById('ord-status').value;
-      if(!clientId || !date) { showNotification("Cliente e data obrigatórios.",1); return false; }
-      let items = [];
-      for(let a of articles) {
-        let qty = parseInt(document.getElementById('ord-qty-'+a.sku).value,10);
-        if(qty>0) items.push({sku:a.sku, qty});
-      }
-      if(items.length===0) { showNotification("Selecione pelo menos um artigo.",1); return false; }
-      // Check stock
-      let stock = getData(LS_STOCK);
-      let ok = true;
-      items.forEach(i=>{
-        let s = stock.find(st=>st.sku===i.sku);
-        let inStock = s?s.qty:0;
-        if(!edit && i.qty>inStock) ok=false;
-        if(!edit && ok) s.qty -= i.qty;
-      });
-      if(!ok) { showNotification("Quantidade superior ao stock!",1); return false; }
-      let orders = getData(LS_ORDERS);
-      if(edit) {
-        let idx = orders.findIndex(x=>x.id===editId);
-        orders[idx] = {...orders[idx], clientId, items, date:date.split('-').reverse().join('/'), status};
-      } else {
-        let id = "O"+Date.now();
-        let orderNum = orders.length+1;
-        orders.push({id, orderNum, clientId, items, date:date.split('-').reverse().join('/'), status});
-      }
-      setData(LS_ORDERS, orders);
-      setData(LS_STOCK, stock);
-      renderOrders(); renderStock(); closeModal();
-      showNotification("Encomenda salva!");
-      return false;
-    }
-  );
-}
-function editOrder(id) { openOrderModal(id);}
-function deleteOrder(id) {
-  if(!confirm("Remover encomenda?")) return;
-  let orders = getData(LS_ORDERS).filter(x=>x.id!==id);
-  setData(LS_ORDERS, orders); renderOrders(); showNotification("Encomenda removida.");
-}
-function viewOrder(id) {
-  let order = getData(LS_ORDERS).find(x=>x.id===id);
-  let clients = getData(LS_CLIENTS);
-  let articles = getData(LS_ARTICLES);
-  let c = clients.find(x=>x.id===order.clientId);
-  let items = order.items.map(i=>{
-    let a = articles.find(x=>x.sku===i.sku);
-    return `<li>${a?a.name:"[Removido]"} (SKU: ${i.sku}) — Quantidade: ${i.qty}</li>`;
-  }).join("");
-  openModal(
-    "Detalhes da Encomenda",
-    `<b>Encomenda #${order.orderNum}</b><br>
-     <b>Cliente:</b> ${c?c.name:"[Removido]"}<br>
-     <b>Data:</b> ${order.date}<br>
-     <b>Status:</b> ${orderStatusTag(order.status)}<br>
-     <b>Artigos:</b><ul>${items}</ul>`,
-    `<button type="button" class="cancel" onclick="closeModal()">Fechar</button>`,
-    null
-  );
-}
-// --- Render All ---
-function renderAll() {
-  renderClients(); renderArticles(); renderStock(); renderOrders();
-}
-// --- Bootstrap: preload demo data if empty ---
+// Bootstrap
 window.onload = function() {
-  checkAuth();
-  if(!localStorage.getItem(LS_ARTICLES)) setData(LS_ARTICLES,[
-    {sku:"001",name:"Lâmpada LED 10W",desc:"Lâmpada LED de alta eficiência energética, ideal para iluminar ambientes."},
-    {sku:"002",name:"Cadeira Gamer Ergonomica",desc:"Cadeira confortável e ajustável, perfeita para longas sessões de gaming."},
-    {sku:"003",name:"Teclado Mecânico RGB",desc:"Teclado mecânico com retroiluminação RGB, ideal para gamers."},
-    {sku:"004",name:"Câmera de Segurança 1080p",desc:"Câmera de segurança Full HD com visão noturna, perfeita para segurança."},
-    {sku:"005",name:"Fone de Ouvido Bluetooth",desc:"Fones de ouvido sem fio, com cancelamento de ruído e alta qualidade de som."},
-    {sku:"006",name:"Smartphone 64GB",desc:"Smartphone de 64GB, com tela de 6.5\" e câmeras de alta resolução."},
-    {sku:"007",name:"Mochila de Viagem 30L",desc:"Mochila resistente à água, com compartimentos ajustáveis e de fácil acesso."},
-    {sku:"008",name:"Máscara de Exercício",desc:"Máscara para atividades físicas, ajuda na resistência e performance."},
-    {sku:"009",name:"Suporte para Teclado",desc:"Suporte ajustável para teclado, perfeito para melhorar a postura."},
-    {sku:"010",name:"Extensão Elétrica 3M",desc:"Extensão elétrica de 3 metros, com 4 tomadas para diversos aparelhos."}
-  ]);
-  if(!localStorage.getItem(LS_STOCK)) setData(LS_STOCK,[
-    {sku:"001",qty:50},{sku:"002",qty:10},{sku:"003",qty:15},{sku:"004",qty:12},
-    {sku:"005",qty:30},{sku:"006",qty:18},{sku:"007",qty:25},{sku:"008",qty:20},
-    {sku:"009",qty:16},{sku:"010",qty:40}
-  ]);
-  if(!localStorage.getItem(LS_CLIENTS)) setData(LS_CLIENTS,[
-    {id:"C1",name:"João Silva",contact:"912345678",email:"joao@email.com"},
-    {id:"C2",name:"Maria Oliveira",contact:"932345678",email:"maria@email.com"},
-    {id:"C3",name:"Empresa XPTO",contact:"222333444",email:"contacto@xpto.com"}
-  ]);
-  if(localStorage.getItem(LS_USER)) renderAll();
+  if(!localStorage.getItem(LS_CLIENTS)) {
+    setClients([
+      {id:"C1", name:"João Silva", contact:"912345678", requests:["Orçamento para 10 lâmpadas LED", "Entrega em Lisboa"]},
+      {id:"C2", name:"Maria Oliveira", contact:"932345678", requests:["Cotação para 3 cadeiras gamer", "Pergunta sobre garantia"]}
+    ]);
+  }
+  renderClients();
 };
 </script>
 </body>
