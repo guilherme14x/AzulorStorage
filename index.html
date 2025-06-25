@@ -9,6 +9,7 @@
             --primary: #2563eb;
             --primary-light: #3b82f6;
             --danger: #dc2626;
+            --green: #10b981;
             --gray: #f3f4f6;
             --radius: 8px;
             --shadow: 0 2px 12px rgba(0,0,0,0.06);
@@ -106,7 +107,11 @@
             background: var(--danger);
             color: #fff;
         }
-        .floating-btn {
+        .actions .addcart {
+            background: var(--green);
+            color: #fff;
+        }
+        .floating-btn, #cart-btn {
             background: var(--primary);
             color: #fff;
             border: none;
@@ -117,6 +122,15 @@
             right: 24px; top: 18px;
             cursor: pointer;
             box-shadow: 0 2px 8px rgba(37,99,235,0.18);
+        }
+        #cart-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 56px; height: 56px;
+            font-size: 1.7em;
+            z-index: 100;
+            display: none;
         }
         .modal-bg {
             background: rgba(0,0,0,0.18);
@@ -234,6 +248,7 @@
         @media (max-width: 700px) {
             .container { padding: 10px 3vw;}
             .modal { min-width: 90vw; }
+            #cart-btn { right: 12px; bottom: 12px;}
         }
     </style>
 </head>
@@ -304,6 +319,20 @@
         <button type="submit">Login</button>
     </form>
 </div>
+<!-- CART FLOATING BUTTON -->
+<button id="cart-btn" onclick="showCartModal()">🛒</button>
+<!-- CART MODAL -->
+<div class="modal-bg" id="cart-modal-bg">
+  <div class="modal" style="min-width:350px">
+    <button type="button" class="modal-close" onclick="closeCartModal()">&times;</button>
+    <div style="font-weight:600; font-size:1.1em; margin-bottom:10px;">Cesto de Compras</div>
+    <div id="cart-list"></div>
+    <div style="text-align:right; margin-top:16px;">
+      <button class="cancel" onclick="closeCartModal()">Fechar</button>
+      <button class="save" onclick="clearCart()" style="margin-left:8px;">Esvaziar Cesto</button>
+    </div>
+  </div>
+</div>
 <!-- MODALS -->
 <div class="modal-bg" id="modal-bg">
     <form class="modal" id="modal-form" onsubmit="return modalSave(event)">
@@ -324,6 +353,7 @@ const LS_USER = 'bmp_user';
 const LS_ARTICLES = 'bmp_articles';
 const LS_STOCK = 'bmp_stock';
 const LS_DELIVERY = 'bmp_delivery';
+const LS_CART = "bmp_cart";
 
 /** --- CREDENTIALS (SET YOUR OWN) --- **/
 const VALID_USER = "admin";
@@ -496,6 +526,62 @@ function modalSave(e) {
     return false;
 }
 
+/** --- CART LOGIC --- */
+function getCart() { return JSON.parse(localStorage.getItem(LS_CART) || "[]"); }
+function setCart(arr) { localStorage.setItem(LS_CART, JSON.stringify(arr)); }
+function addToCart(sku) {
+    let cart = getCart();
+    let idx = cart.findIndex(item => item.sku === sku);
+    if(idx >= 0) { cart[idx].qty++; }
+    else cart.push({sku, qty: 1});
+    setCart(cart);
+    showNotification("Adicionado ao cesto!");
+    updateCartBtn();
+}
+function removeFromCart(sku) {
+    let cart = getCart();
+    cart = cart.filter(item => item.sku !== sku);
+    setCart(cart);
+    showCartModal();
+    updateCartBtn();
+}
+function clearCart() {
+    if(confirm("Esvaziar o cesto?")) {
+        setCart([]);
+        showCartModal();
+        updateCartBtn();
+    }
+}
+function updateCartBtn() {
+    let cart = getCart();
+    let btn = document.getElementById("cart-btn");
+    let total = cart.reduce((a, b) => a + b.qty, 0);
+    btn.style.display = total > 0 ? "block" : "none";
+    btn.innerHTML = "🛒" + (total > 0 ? `<span style='font-size:0.7em'>${total}</span>` : "");
+}
+function showCartModal() {
+    let cart = getCart();
+    let articles = getData(LS_ARTICLES);
+    let html = "";
+    if(cart.length === 0) html = "<i>O cesto está vazio.</i>";
+    else html = `<table style="width:100%;font-size:1em;">
+        <tr><th>SKU</th><th>Nome</th><th>Qtd</th><th>Ação</th></tr>` +
+        cart.map(item => {
+            let art = articles.find(a => a.sku === item.sku);
+            return `<tr>
+                <td>${item.sku}</td>
+                <td>${art ? art.name : "[Removido]"}</td>
+                <td>${item.qty}</td>
+                <td><button class="delete" onclick="removeFromCart('${item.sku}')">Remover</button></td>
+            </tr>`;
+        }).join("") + "</table>";
+    document.getElementById("cart-list").innerHTML = html;
+    document.getElementById("cart-modal-bg").classList.add("active");
+}
+function closeCartModal() {
+    document.getElementById("cart-modal-bg").classList.remove("active");
+}
+
 /** --- RENDERING UI --- **/
 function renderArticles() {
     let articles = getData(LS_ARTICLES);
@@ -508,10 +594,12 @@ function renderArticles() {
             <td class="actions">
                 <button class="edit" onclick="openModal('article',${JSON.stringify(art)})">Edit</button>
                 <button class="delete" onclick="deleteArticle('${art.sku}')">Delete</button>
+                <button class="addcart" onclick="addToCart('${art.sku}')">Adicionar ao cesto</button>
             </td>
         </tr>`;
     }
     document.getElementById('articles-list').innerHTML = tbody;
+    updateCartBtn();
 }
 function renderStock() {
     let stock = getData(LS_STOCK);
@@ -576,6 +664,23 @@ function deleteStock(sku) {
 window.onload = function() {
     checkAuth();
     if (localStorage.getItem(LS_USER)) renderAll();
+    updateCartBtn();
+    // preload demo articles only if none exist
+    if(!localStorage.getItem(LS_ARTICLES)) {
+        setData(LS_ARTICLES, [
+            {sku:"001",name:"Lâmpada LED 10W",desc:"Lâmpada LED de alta eficiência energética, ideal para iluminar ambientes."},
+            {sku:"002",name:"Cadeira Gamer Ergonomica",desc:"Cadeira confortável e ajustável, perfeita para longas sessões de gaming."},
+            {sku:"003",name:"Teclado Mecânico RGB",desc:"Teclado mecânico com retroiluminação RGB, ideal para gamers."},
+            {sku:"004",name:"Câmera de Segurança 1080p",desc:"Câmera de segurança Full HD com visão noturna, perfeita para segurança."},
+            {sku:"005",name:"Fone de Ouvido Bluetooth",desc:"Fones de ouvido sem fio, com cancelamento de ruído e alta qualidade de som."},
+            {sku:"006",name:"Smartphone 64GB",desc:"Smartphone de 64GB, com tela de 6.5\" e câmeras de alta resolução."},
+            {sku:"007",name:"Mochila de Viagem 30L",desc:"Mochila resistente à água, com compartimentos ajustáveis e de fácil acesso."},
+            {sku:"008",name:"Máscara de Exercício",desc:"Máscara para atividades físicas, ajuda na resistência e performance."},
+            {sku:"009",name:"Suporte para Teclado",desc:"Suporte ajustável para teclado, perfeito para melhorar a postura."},
+            {sku:"010",name:"Extensão Elétrica 3M",desc:"Extensão elétrica de 3 metros, com 4 tomadas para diversos aparelhos."}
+        ]);
+        renderArticles();
+    }
 };
 </script>
 </body>
