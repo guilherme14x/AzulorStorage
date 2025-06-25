@@ -5,244 +5,578 @@
     <title>Business Management Platform</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; }
-        .container { max-width: 960px; margin: 30px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);}
-        h1, h2 { color: #333; }
-        nav { margin-bottom: 24px; }
-        nav button { margin-right: 12px; padding: 8px 16px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer;}
-        nav button.active, nav button:hover { background: #0056b3; }
-        .hidden { display: none; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px;}
-        th, td { border: 1px solid #ddd; padding: 8px;}
-        th { background: #f8f8f8; }
-        form input, form select { margin: 4px 0; padding: 4px 8px; }
-        form label { display: block; margin-top: 8px;}
-        .actions button { margin-right: 5px;}
-        .logout { float: right; background: #dc3545;}
-        .logout:hover { background: #a71d2a;}
-        .header-bar { display: flex; justify-content: space-between; align-items: center; }
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --danger: #dc2626;
+            --gray: #f3f4f6;
+            --radius: 8px;
+            --shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: var(--gray);
+        }
+        .container {
+            max-width: 1024px;
+            margin: 32px auto;
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 32px 24px;
+        }
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-bar h1 {
+            font-size: 1.7em;
+            font-weight: 700;
+            margin: 0;
+        }
+        nav {
+            display: flex;
+            gap: 12px;
+            margin: 28px 0 18px 0;
+        }
+        nav button {
+            background: none;
+            border: none;
+            font-size: 1em;
+            padding: 8px 18px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            color: #333;
+            transition: background 0.2s;
+        }
+        nav button.active, nav button:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+        .panel {
+            background: var(--gray);
+            border-radius: var(--radius);
+            margin-bottom: 30px;
+            padding: 18px 20px 8px 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .panel h2 {
+            margin-top: 0;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+        }
+        th, td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .actions button {
+            margin-right: 5px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: none;
+            font-size: 0.95em;
+            cursor: pointer;
+        }
+        .actions .edit {
+            background: var(--primary-light);
+            color: #fff;
+        }
+        .actions .delete {
+            background: var(--danger);
+            color: #fff;
+        }
+        .floating-btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 100px;
+            font-size: 1.3em;
+            width: 40px; height: 40px;
+            position: absolute;
+            right: 24px; top: 18px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.18);
+        }
+        .modal-bg {
+            background: rgba(0,0,0,0.18);
+            position: fixed;
+            inset: 0;
+            display: none;
+            z-index: 50;
+        }
+        .modal-bg.active { display: flex; align-items: center; justify-content: center; }
+        .modal {
+            background: #fff;
+            padding: 32px 26px 20px 26px;
+            border-radius: var(--radius);
+            min-width: 320px;
+            min-height: 120px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 10px; right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.3em;
+            color: #aaa;
+            cursor: pointer;
+        }
+        .modal label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        .modal input, .modal select {
+            width: 100%;
+            font-size: 1em;
+            padding: 8px;
+            border: 1px solid #dbdbdb;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .modal-actions {
+            margin-top: 12px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .modal-actions button {
+            font-size: 1em;
+            padding: 7px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+        }
+        .modal-actions .save { background: var(--primary); color: #fff;}
+        .modal-actions .cancel { background: #e5e7eb; color: #333;}
+        .notification {
+            position: fixed;
+            right: 24px;
+            top: 24px;
+            background: var(--primary);
+            color: #fff;
+            padding: 15px 28px;
+            border-radius: 7px;
+            font-size: 1.1em;
+            z-index: 200;
+            box-shadow: var(--shadow);
+            opacity: 0.97;
+            display: none;
+        }
+        .notification.error { background: var(--danger);}
+        /* Auth overlay */
+        #login-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: #f3f4f680;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #login-card {
+            background: #fff;
+            box-shadow: var(--shadow);
+            border-radius: var(--radius);
+            padding: 32px 40px 28px 40px;
+            min-width: 340px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        #login-card h2 { margin: 0 0 10px 0; }
+        #login-card input {
+            padding: 9px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-bottom: 16px;
+        }
+        #login-card button {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            padding: 10px 0;
+            cursor: pointer;
+        }
+        #login-card .error {
+            color: var(--danger);
+            margin-bottom: 8px;
+            font-size: 0.98em;
+        }
+        @media (max-width: 700px) {
+            .container { padding: 10px 3vw;}
+            .modal { min-width: 90vw; }
+        }
     </style>
 </head>
 <body>
-<div class="container">
+<div class="container" id="app" style="display:none;">
     <div class="header-bar">
         <h1>Business Management Platform</h1>
-        <button class="logout" onclick="logout()">Logout</button>
+        <button class="actions delete" id="logoutBtn" onclick="logout()" style="font-size:1em;">Logout</button>
     </div>
     <nav>
-        <button id="tab-articles" onclick="showTab('articles')">Articles</button>
-        <button id="tab-stock" onclick="showTab('stock')">Stock</button>
-        <button id="tab-delivery" onclick="showTab('delivery')">Delivery</button>
+        <button class="tablink active" onclick="showTab('articles')">Articles</button>
+        <button class="tablink" onclick="showTab('stock')">Stock</button>
+        <button class="tablink" onclick="showTab('delivery')">Delivery</button>
     </nav>
-    <!-- Articles Section -->
-    <section id="section-articles" class="hidden">
-        <h2>Articles</h2>
-        <form id="add-article-form" onsubmit="addArticle(event)">
-            <label>Article Name: <input type="text" id="article-name" required></label>
-            <label>Description: <input type="text" id="article-desc" required></label>
-            <label>SKU: <input type="text" id="article-sku" required></label>
-            <button type="submit">Add Article</button>
-        </form>
-        <table>
-            <thead>
-                <tr>
-                    <th>SKU</th><th>Name</th><th>Description</th><th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="articles-list"></tbody>
-        </table>
+    <!-- ARTICLES -->
+    <section class="section active" id="articles-section">
+        <div class="panel" style="position:relative;">
+            <h2>Articles</h2>
+            <button class="floating-btn" onclick="openModal('article')">+</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>SKU</th><th>Name</th><th>Description</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="articles-list"></tbody>
+            </table>
+        </div>
     </section>
-    <!-- Stock Section -->
-    <section id="section-stock" class="hidden">
-        <h2>Stock</h2>
-        <form id="add-stock-form" onsubmit="addStock(event)">
-            <label>Article SKU: 
-                <select id="stock-article-sku" required></select>
-            </label>
-            <label>Quantity: <input type="number" id="stock-qty" min="1" required></label>
-            <button type="submit">Add to Stock</button>
-        </form>
-        <table>
-            <thead>
-                <tr>
-                    <th>SKU</th><th>Name</th><th>Stock Qty</th><th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="stock-list"></tbody>
-        </table>
+    <!-- STOCK -->
+    <section class="section" id="stock-section">
+        <div class="panel" style="position:relative;">
+            <h2>Stock</h2>
+            <button class="floating-btn" onclick="openModal('stock')">+</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>SKU</th><th>Name</th><th>Quantity</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="stock-list"></tbody>
+            </table>
+        </div>
     </section>
-    <!-- Delivery Section -->
-    <section id="section-delivery" class="hidden">
-        <h2>Delivery</h2>
-        <form id="add-delivery-form" onsubmit="addDelivery(event)">
-            <label>Article SKU: 
-                <select id="delivery-article-sku" required></select>
-            </label>
-            <label>Quantity: <input type="number" id="delivery-qty" min="1" required></label>
-            <label>Destination: <input type="text" id="delivery-dest" required></label>
-            <button type="submit">Register Delivery</button>
-        </form>
-        <table>
-            <thead>
-                <tr>
-                    <th>SKU</th><th>Name</th><th>Delivered Qty</th><th>Destination</th><th>Date</th>
-                </tr>
-            </thead>
-            <tbody id="delivery-list"></tbody>
-        </table>
+    <!-- DELIVERIES -->
+    <section class="section" id="delivery-section">
+        <div class="panel" style="position:relative;">
+            <h2>Delivery</h2>
+            <button class="floating-btn" onclick="openModal('delivery')">+</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>SKU</th><th>Name</th><th>Qty</th><th>Destination</th><th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="delivery-list"></tbody>
+            </table>
+        </div>
     </section>
 </div>
+<!-- LOGIN OVERLAY -->
+<div id="login-overlay">
+    <form id="login-card" onsubmit="return login(event)">
+        <h2>Sign In</h2>
+        <input type="text" id="login-username" placeholder="Username" autocomplete="username" required>
+        <input type="password" id="login-password" placeholder="Password" autocomplete="current-password" required>
+        <div id="login-error" class="error"></div>
+        <button type="submit">Login</button>
+    </form>
+</div>
+<!-- MODALS -->
+<div class="modal-bg" id="modal-bg">
+    <form class="modal" id="modal-form" onsubmit="return modalSave(event)">
+        <button type="button" class="modal-close" onclick="closeModal()">&times;</button>
+        <div id="modal-title" style="font-weight:600;font-size:1.1em;"></div>
+        <div id="modal-body"></div>
+        <div class="modal-actions">
+            <button type="button" class="cancel" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="save">Save</button>
+        </div>
+    </form>
+</div>
+<!-- NOTIFICATION -->
+<div class="notification" id="notification"></div>
 <script>
-    // Simple authentication (local, only for demonstration)
-    if(!localStorage.getItem('private_login')) {
-        let user = prompt('Enter username for access:','admin');
-        let pass = prompt('Enter password:','admin');
-        // Change 'admin' to your own credentials if you want
-        if(user === 'admin' && pass === 'admin') {
-            localStorage.setItem('private_login','1');
-        } else {
-            alert('Access Denied!');
-            document.body.innerHTML = '<h2>Access Denied.</h2>';
-            throw '';
-        }
-    }
+/** --- LOCALSTORAGE KEY CONSTANTS --- **/
+const LS_USER = 'bmp_user';
+const LS_ARTICLES = 'bmp_articles';
+const LS_STOCK = 'bmp_stock';
+const LS_DELIVERY = 'bmp_delivery';
 
-    // Data storage in localStorage
-    function getData(key) { return JSON.parse(localStorage.getItem(key)||'[]'); }
-    function setData(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
-    // Tabs
-    function showTab(tab) {
-        ['articles','stock','delivery'].forEach(t => {
-            document.getElementById('section-'+t).classList.add('hidden');
-            document.getElementById('tab-'+t).classList.remove('active');
-        });
-        document.getElementById('section-'+tab).classList.remove('hidden');
-        document.getElementById('tab-'+tab).classList.add('active');
-        if(tab==='stock') updateStockSelect();
-        if(tab==='delivery') updateDeliverySelect();
+/** --- CREDENTIALS (SET YOUR OWN) --- **/
+const VALID_USER = "admin";
+const VALID_PASS = "admin"; // Change for production!
+
+/** --- USER AUTHENTICATION --- **/
+function showApp(logged) {
+    document.getElementById('login-overlay').style.display = logged ? 'none' : 'flex';
+    document.getElementById('app').style.display = logged ? '' : 'none';
+}
+function checkAuth() {
+    if (localStorage.getItem(LS_USER)) showApp(true);
+    else showApp(false);
+}
+function login(e) {
+    e.preventDefault();
+    let user = document.getElementById('login-username').value;
+    let pass = document.getElementById('login-password').value;
+    if (user === VALID_USER && pass === VALID_PASS) {
+        localStorage.setItem(LS_USER, user);
+        showNotification("Logged in!", false);
+        showApp(true);
+        setTimeout(()=>{renderAll();},100);
+    } else {
+        document.getElementById('login-error').textContent = "Invalid credentials";
+        return false;
     }
-    // Articles
-    function renderArticles() {
-        const articles = getData('articles');
-        let html = '';
-        for(const art of articles) {
-            html += `<tr><td>${art.sku}</td><td>${art.name}</td><td>${art.desc}</td>
-                    <td class="actions">
-                        <button onclick="removeArticle('${art.sku}')">Delete</button>
-                    </td></tr>`;
-        }
-        document.getElementById('articles-list').innerHTML = html;
-        updateStockSelect();
-        updateDeliverySelect();
-    }
-    function addArticle(e) {
-        e.preventDefault();
-        const name = document.getElementById('article-name').value.trim();
-        const desc = document.getElementById('article-desc').value.trim();
-        const sku = document.getElementById('article-sku').value.trim();
-        if(!name || !desc || !sku) return;
-        let articles = getData('articles');
-        if(articles.some(a=>a.sku===sku)) { alert('SKU already exists!'); return; }
-        articles.push({sku, name, desc});
-        setData('articles', articles);
-        renderArticles();
-        e.target.reset();
-    }
-    function removeArticle(sku) {
-        if(!confirm('Delete this article?')) return;
-        let articles = getData('articles').filter(a=>a.sku!==sku);
-        setData('articles', articles);
-        renderArticles();
-    }
-    // Stock
-    function renderStock() {
-        const articles = getData('articles');
-        const stock = getData('stock');
-        let html = '';
-        for(const s of stock) {
-            const art = articles.find(a=>a.sku===s.sku) || {name:'[Deleted]'};
-            html += `<tr><td>${s.sku}</td><td>${art.name}</td><td>${s.qty}</td>
-                    <td class="actions"><button onclick="removeStock('${s.sku}')">Remove</button></td></tr>`;
-        }
-        document.getElementById('stock-list').innerHTML = html;
-    }
-    function addStock(e) {
-        e.preventDefault();
-        const sku = document.getElementById('stock-article-sku').value;
-        const qty = parseInt(document.getElementById('stock-qty').value,10);
-        if(!sku || !qty) return;
-        let stock = getData('stock');
-        let found = stock.find(s=>s.sku===sku);
-        if(found) found.qty += qty;
-        else stock.push({sku, qty});
-        setData('stock', stock);
-        renderStock();
-        e.target.reset();
-    }
-    function removeStock(sku) {
-        if(!confirm('Remove stock for this article?')) return;
-        let stock = getData('stock').filter(s=>s.sku!==sku);
-        setData('stock', stock);
-        renderStock();
-    }
-    function updateStockSelect() {
-        const articles = getData('articles');
-        let opt = '<option value="">Choose SKU</option>';
-        for(const art of articles) {
-            opt += `<option value="${art.sku}">${art.sku} - ${art.name}</option>`;
-        }
-        document.getElementById('stock-article-sku').innerHTML = opt;
-    }
-    // Delivery
-    function renderDelivery() {
-        const articles = getData('articles');
-        const deliveries = getData('delivery');
-        let html = '';
-        for(const d of deliveries) {
-            const art = articles.find(a=>a.sku===d.sku) || {name:'[Deleted]'};
-            html += `<tr><td>${d.sku}</td><td>${art.name}</td><td>${d.qty}</td><td>${d.dest}</td><td>${d.date}</td></tr>`;
-        }
-        document.getElementById('delivery-list').innerHTML = html;
-    }
-    function addDelivery(e) {
-        e.preventDefault();
-        const sku = document.getElementById('delivery-article-sku').value;
-        const qty = parseInt(document.getElementById('delivery-qty').value,10);
-        const dest = document.getElementById('delivery-dest').value.trim();
-        if(!sku || !qty || !dest) return;
-        let stock = getData('stock');
-        let s = stock.find(ss=>ss.sku===sku);
-        if(!s || s.qty<qty) { alert('Not enough stock!'); return; }
-        s.qty -= qty;
-        setData('stock', stock);
-        let deliveries = getData('delivery');
-        deliveries.push({sku, qty, dest, date: new Date().toLocaleString()});
-        setData('delivery', deliveries);
-        renderStock();
-        renderDelivery();
-        e.target.reset();
-    }
-    function updateDeliverySelect() {
-        const articles = getData('articles');
-        let opt = '<option value="">Choose SKU</option>';
-        for(const art of articles) {
-            opt += `<option value="${art.sku}">${art.sku} - ${art.name}</option>`;
-        }
-        document.getElementById('delivery-article-sku').innerHTML = opt;
-    }
-    // Logout
-    function logout() {
-        localStorage.removeItem('private_login');
+    return false;
+}
+function logout() {
+    if (confirm("Logout?")) {
+        localStorage.removeItem(LS_USER);
         location.reload();
     }
-    // Initialize
-    function main() {
+}
+
+/** --- UTILS --- **/
+function getData(key) { return JSON.parse(localStorage.getItem(key)||'[]'); }
+function setData(key, arr) { localStorage.setItem(key, JSON.stringify(arr)); }
+function showNotification(msg, isError) {
+    let n = document.getElementById('notification');
+    n.textContent = msg;
+    n.className = "notification"+(isError?" error":"");
+    n.style.display = "block";
+    setTimeout(()=>{ n.style.display = "none"; }, 1900);
+}
+
+/** --- TABS --- **/
+function showTab(tab) {
+    Array.from(document.querySelectorAll('.section')).forEach(el=>el.classList.remove('active'));
+    document.getElementById(tab+'-section').classList.add('active');
+    Array.from(document.querySelectorAll('.tablink')).forEach(el=>el.classList.remove('active'));
+    let idx = ['articles','stock','delivery'].indexOf(tab);
+    document.querySelectorAll('.tablink')[idx].classList.add('active');
+}
+
+/** --- MODAL LOGIC --- **/
+let modalContext = {};
+function openModal(type, editObj) {
+    modalContext = {type, editObj};
+    let title = '', body = '';
+    if (type==='article') {
+        title = (editObj?'Edit':'Add')+' Article';
+        let name = editObj?.name||'', desc = editObj?.desc||'', sku = editObj?.sku||'';
+        body = `
+          <label>Name: <input type="text" id="modal-article-name" value="${name}" required></label>
+          <label>Description: <input type="text" id="modal-article-desc" value="${desc}" required></label>
+          <label>SKU: <input type="text" id="modal-article-sku" value="${sku}" ${editObj?'readonly disabled':''} required></label>
+        `;
+    }
+    if (type==='stock') {
+        title = (editObj?'Edit':'Add')+' Stock';
+        let articles = getData(LS_ARTICLES);
+        let options = `<option value="">Select...</option>`;
+        for(let art of articles) options += `<option value="${art.sku}">${art.sku} - ${art.name}</option>`;
+        let sku = editObj?.sku||'', qty = editObj?.qty||'';
+        body = `
+          <label>Article SKU: 
+            <select id="modal-stock-sku" required ${editObj?'disabled':''}>${options}</select>
+          </label>
+          <label>Quantity: <input type="number" id="modal-stock-qty" min="1" value="${qty}" required></label>
+        `;
+        setTimeout(()=>{if(editObj)document.getElementById('modal-stock-sku').value=sku;},10);
+    }
+    if (type==='delivery') {
+        title = (editObj?'Edit':'New')+' Delivery';
+        let articles = getData(LS_ARTICLES), stock = getData(LS_STOCK);
+        let options = `<option value="">Select...</option>`;
+        for(let art of articles) {
+            let s = stock.find(st=>st.sku===art.sku);
+            if (s && s.qty>0) options += `<option value="${art.sku}">${art.sku} - ${art.name} (Available: ${s.qty})</option>`;
+        }
+        let sku = editObj?.sku||'', qty=editObj?.qty||'', dest=editObj?.dest||'';
+        body = `
+          <label>Article SKU: 
+            <select id="modal-delivery-sku" required>${options}</select>
+          </label>
+          <label>Quantity: <input type="number" id="modal-delivery-qty" min="1" value="${qty}" required></label>
+          <label>Destination: <input type="text" id="modal-delivery-dest" value="${dest}" required></label>
+        `;
+        setTimeout(()=>{if(editObj)document.getElementById('modal-delivery-sku').value=sku;},10);
+    }
+    document.getElementById('modal-title').innerHTML = title;
+    document.getElementById('modal-body').innerHTML = body;
+    document.getElementById('modal-bg').classList.add('active');
+}
+function closeModal() {
+    document.getElementById('modal-bg').classList.remove('active');
+    modalContext = {};
+}
+function modalSave(e) {
+    e.preventDefault();
+    let {type, editObj} = modalContext;
+    if (type==='article') {
+        let name = document.getElementById('modal-article-name').value.trim();
+        let desc = document.getElementById('modal-article-desc').value.trim();
+        let sku = document.getElementById('modal-article-sku').value.trim();
+        if (!name || !desc || !sku) { showNotification("All fields required", true); return false; }
+        let articles = getData(LS_ARTICLES);
+        if (!editObj && articles.some(a=>a.sku===sku)) { showNotification("SKU already exists!", true); return false; }
+        if (editObj) {
+            let idx = articles.findIndex(a=>a.sku===sku);
+            articles[idx].name = name; articles[idx].desc = desc;
+        } else {
+            articles.push({name, desc, sku});
+        }
+        setData(LS_ARTICLES, articles);
+        showNotification(editObj?"Article updated":"Article added");
         renderArticles();
+        closeModal();
+        return false;
+    }
+    if (type==='stock') {
+        let sku = document.getElementById('modal-stock-sku').value;
+        let qty = parseInt(document.getElementById('modal-stock-qty').value,10);
+        if (!sku || !qty) { showNotification("All fields required", true); return false; }
+        let stock = getData(LS_STOCK);
+        let s = stock.find(st=>st.sku===sku);
+        if (editObj) {
+            s.qty = qty;
+        } else {
+            if (s) s.qty += qty;
+            else stock.push({sku, qty});
+        }
+        setData(LS_STOCK, stock);
+        showNotification(editObj?"Stock updated":"Stock added");
+        renderStock();
+        closeModal();
+        return false;
+    }
+    if (type==='delivery') {
+        let sku = document.getElementById('modal-delivery-sku').value;
+        let qty = parseInt(document.getElementById('modal-delivery-qty').value,10);
+        let dest = document.getElementById('modal-delivery-dest').value.trim();
+        if (!sku || !qty || !dest) { showNotification("All fields required", true); return false; }
+        let stock = getData(LS_STOCK);
+        let s = stock.find(st=>st.sku===sku);
+        if (!s || s.qty<qty) { showNotification("Not enough stock!", true); return false; }
+        s.qty -= qty;
+        setData(LS_STOCK, stock);
+        let deliveries = getData(LS_DELIVERY);
+        deliveries.push({sku, qty, dest, date: (new Date().toLocaleString())});
+        setData(LS_DELIVERY, deliveries);
+        showNotification("Delivery registered");
         renderStock();
         renderDelivery();
-        showTab('articles');
+        closeModal();
+        return false;
     }
-    main();
+    return false;
+}
+
+/** --- RENDERING UI --- **/
+function renderArticles() {
+    let articles = getData(LS_ARTICLES);
+    let tbody = '';
+    for(let art of articles) {
+        tbody += `<tr>
+            <td>${art.sku}</td>
+            <td>${art.name}</td>
+            <td>${art.desc}</td>
+            <td class="actions">
+                <button class="edit" onclick="openModal('article',${JSON.stringify(art)})">Edit</button>
+                <button class="delete" onclick="deleteArticle('${art.sku}')">Delete</button>
+            </td>
+        </tr>`;
+    }
+    document.getElementById('articles-list').innerHTML = tbody;
+}
+function renderStock() {
+    let stock = getData(LS_STOCK);
+    let articles = getData(LS_ARTICLES);
+    let tbody = '';
+    for(let st of stock) {
+        let art = articles.find(a=>a.sku===st.sku);
+        tbody += `<tr>
+            <td>${st.sku}</td>
+            <td>${art?.name||"[Deleted]"}</td>
+            <td>${st.qty}</td>
+            <td class="actions">
+                <button class="edit" onclick="openModal('stock',${JSON.stringify(st)})">Edit</button>
+                <button class="delete" onclick="deleteStock('${st.sku}')">Delete</button>
+            </td>
+        </tr>`;
+    }
+    document.getElementById('stock-list').innerHTML = tbody;
+}
+function renderDelivery() {
+    let deliveries = getData(LS_DELIVERY);
+    let articles = getData(LS_ARTICLES);
+    let tbody = '';
+    for(let d of deliveries) {
+        let art = articles.find(a=>a.sku===d.sku);
+        tbody += `<tr>
+            <td>${d.sku}</td>
+            <td>${art?.name||"[Deleted]"}</td>
+            <td>${d.qty}</td>
+            <td>${d.dest}</td>
+            <td>${d.date}</td>
+        </tr>`;
+    }
+    document.getElementById('delivery-list').innerHTML = tbody;
+}
+function renderAll() {
+    renderArticles();
+    renderStock();
+    renderDelivery();
+}
+
+/** --- REMOVE/DELETE LOGIC --- **/
+function deleteArticle(sku) {
+    if (!confirm("Delete this article? This may affect stock and deliveries.")) return;
+    let articles = getData(LS_ARTICLES).filter(a=>a.sku!==sku);
+    let stock = getData(LS_STOCK).filter(st=>st.sku!==sku);
+    setData(LS_ARTICLES, articles);
+    setData(LS_STOCK, stock);
+    // Do not delete delivery history, but show as [Deleted]
+    showNotification("Article deleted");
+    renderArticles(); renderStock(); renderDelivery();
+}
+function deleteStock(sku) {
+    if (!confirm("Remove stock for this article?")) return;
+    let stock = getData(LS_STOCK).filter(s=>s.sku!==sku);
+    setData(LS_STOCK, stock);
+    showNotification("Stock removed");
+    renderStock();
+}
+
+/** --- BOOTSTRAP --- **/
+window.onload = function() {
+    checkAuth();
+    if (localStorage.getItem(LS_USER)) renderAll();
+};
 </script>
 </body>
 </html>
