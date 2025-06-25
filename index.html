@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Business Management Platform</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; }
+        .container { max-width: 960px; margin: 30px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);}
+        h1, h2 { color: #333; }
+        nav { margin-bottom: 24px; }
+        nav button { margin-right: 12px; padding: 8px 16px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer;}
+        nav button.active, nav button:hover { background: #0056b3; }
+        .hidden { display: none; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px;}
+        th, td { border: 1px solid #ddd; padding: 8px;}
+        th { background: #f8f8f8; }
+        form input, form select { margin: 4px 0; padding: 4px 8px; }
+        form label { display: block; margin-top: 8px;}
+        .actions button { margin-right: 5px;}
+        .logout { float: right; background: #dc3545;}
+        .logout:hover { background: #a71d2a;}
+        .header-bar { display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header-bar">
+        <h1>Business Management Platform</h1>
+        <button class="logout" onclick="logout()">Logout</button>
+    </div>
+    <nav>
+        <button id="tab-articles" onclick="showTab('articles')">Articles</button>
+        <button id="tab-stock" onclick="showTab('stock')">Stock</button>
+        <button id="tab-delivery" onclick="showTab('delivery')">Delivery</button>
+    </nav>
+    <!-- Articles Section -->
+    <section id="section-articles" class="hidden">
+        <h2>Articles</h2>
+        <form id="add-article-form" onsubmit="addArticle(event)">
+            <label>Article Name: <input type="text" id="article-name" required></label>
+            <label>Description: <input type="text" id="article-desc" required></label>
+            <label>SKU: <input type="text" id="article-sku" required></label>
+            <button type="submit">Add Article</button>
+        </form>
+        <table>
+            <thead>
+                <tr>
+                    <th>SKU</th><th>Name</th><th>Description</th><th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="articles-list"></tbody>
+        </table>
+    </section>
+    <!-- Stock Section -->
+    <section id="section-stock" class="hidden">
+        <h2>Stock</h2>
+        <form id="add-stock-form" onsubmit="addStock(event)">
+            <label>Article SKU: 
+                <select id="stock-article-sku" required></select>
+            </label>
+            <label>Quantity: <input type="number" id="stock-qty" min="1" required></label>
+            <button type="submit">Add to Stock</button>
+        </form>
+        <table>
+            <thead>
+                <tr>
+                    <th>SKU</th><th>Name</th><th>Stock Qty</th><th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="stock-list"></tbody>
+        </table>
+    </section>
+    <!-- Delivery Section -->
+    <section id="section-delivery" class="hidden">
+        <h2>Delivery</h2>
+        <form id="add-delivery-form" onsubmit="addDelivery(event)">
+            <label>Article SKU: 
+                <select id="delivery-article-sku" required></select>
+            </label>
+            <label>Quantity: <input type="number" id="delivery-qty" min="1" required></label>
+            <label>Destination: <input type="text" id="delivery-dest" required></label>
+            <button type="submit">Register Delivery</button>
+        </form>
+        <table>
+            <thead>
+                <tr>
+                    <th>SKU</th><th>Name</th><th>Delivered Qty</th><th>Destination</th><th>Date</th>
+                </tr>
+            </thead>
+            <tbody id="delivery-list"></tbody>
+        </table>
+    </section>
+</div>
+<script>
+    // Simple authentication (local, only for demonstration)
+    if(!localStorage.getItem('private_login')) {
+        let user = prompt('Enter username for access:','admin');
+        let pass = prompt('Enter password:','admin');
+        // Change 'admin' to your own credentials if you want
+        if(user === 'admin' && pass === 'admin') {
+            localStorage.setItem('private_login','1');
+        } else {
+            alert('Access Denied!');
+            document.body.innerHTML = '<h2>Access Denied.</h2>';
+            throw '';
+        }
+    }
+
+    // Data storage in localStorage
+    function getData(key) { return JSON.parse(localStorage.getItem(key)||'[]'); }
+    function setData(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+    // Tabs
+    function showTab(tab) {
+        ['articles','stock','delivery'].forEach(t => {
+            document.getElementById('section-'+t).classList.add('hidden');
+            document.getElementById('tab-'+t).classList.remove('active');
+        });
+        document.getElementById('section-'+tab).classList.remove('hidden');
+        document.getElementById('tab-'+tab).classList.add('active');
+        if(tab==='stock') updateStockSelect();
+        if(tab==='delivery') updateDeliverySelect();
+    }
+    // Articles
+    function renderArticles() {
+        const articles = getData('articles');
+        let html = '';
+        for(const art of articles) {
+            html += `<tr><td>${art.sku}</td><td>${art.name}</td><td>${art.desc}</td>
+                    <td class="actions">
+                        <button onclick="removeArticle('${art.sku}')">Delete</button>
+                    </td></tr>`;
+        }
+        document.getElementById('articles-list').innerHTML = html;
+        updateStockSelect();
+        updateDeliverySelect();
+    }
+    function addArticle(e) {
+        e.preventDefault();
+        const name = document.getElementById('article-name').value.trim();
+        const desc = document.getElementById('article-desc').value.trim();
+        const sku = document.getElementById('article-sku').value.trim();
+        if(!name || !desc || !sku) return;
+        let articles = getData('articles');
+        if(articles.some(a=>a.sku===sku)) { alert('SKU already exists!'); return; }
+        articles.push({sku, name, desc});
+        setData('articles', articles);
+        renderArticles();
+        e.target.reset();
+    }
+    function removeArticle(sku) {
+        if(!confirm('Delete this article?')) return;
+        let articles = getData('articles').filter(a=>a.sku!==sku);
+        setData('articles', articles);
+        renderArticles();
+    }
+    // Stock
+    function renderStock() {
+        const articles = getData('articles');
+        const stock = getData('stock');
+        let html = '';
+        for(const s of stock) {
+            const art = articles.find(a=>a.sku===s.sku) || {name:'[Deleted]'};
+            html += `<tr><td>${s.sku}</td><td>${art.name}</td><td>${s.qty}</td>
+                    <td class="actions"><button onclick="removeStock('${s.sku}')">Remove</button></td></tr>`;
+        }
+        document.getElementById('stock-list').innerHTML = html;
+    }
+    function addStock(e) {
+        e.preventDefault();
+        const sku = document.getElementById('stock-article-sku').value;
+        const qty = parseInt(document.getElementById('stock-qty').value,10);
+        if(!sku || !qty) return;
+        let stock = getData('stock');
+        let found = stock.find(s=>s.sku===sku);
+        if(found) found.qty += qty;
+        else stock.push({sku, qty});
+        setData('stock', stock);
+        renderStock();
+        e.target.reset();
+    }
+    function removeStock(sku) {
+        if(!confirm('Remove stock for this article?')) return;
+        let stock = getData('stock').filter(s=>s.sku!==sku);
+        setData('stock', stock);
+        renderStock();
+    }
+    function updateStockSelect() {
+        const articles = getData('articles');
+        let opt = '<option value="">Choose SKU</option>';
+        for(const art of articles) {
+            opt += `<option value="${art.sku}">${art.sku} - ${art.name}</option>`;
+        }
+        document.getElementById('stock-article-sku').innerHTML = opt;
+    }
+    // Delivery
+    function renderDelivery() {
+        const articles = getData('articles');
+        const deliveries = getData('delivery');
+        let html = '';
+        for(const d of deliveries) {
+            const art = articles.find(a=>a.sku===d.sku) || {name:'[Deleted]'};
+            html += `<tr><td>${d.sku}</td><td>${art.name}</td><td>${d.qty}</td><td>${d.dest}</td><td>${d.date}</td></tr>`;
+        }
+        document.getElementById('delivery-list').innerHTML = html;
+    }
+    function addDelivery(e) {
+        e.preventDefault();
+        const sku = document.getElementById('delivery-article-sku').value;
+        const qty = parseInt(document.getElementById('delivery-qty').value,10);
+        const dest = document.getElementById('delivery-dest').value.trim();
+        if(!sku || !qty || !dest) return;
+        let stock = getData('stock');
+        let s = stock.find(ss=>ss.sku===sku);
+        if(!s || s.qty<qty) { alert('Not enough stock!'); return; }
+        s.qty -= qty;
+        setData('stock', stock);
+        let deliveries = getData('delivery');
+        deliveries.push({sku, qty, dest, date: new Date().toLocaleString()});
+        setData('delivery', deliveries);
+        renderStock();
+        renderDelivery();
+        e.target.reset();
+    }
+    function updateDeliverySelect() {
+        const articles = getData('articles');
+        let opt = '<option value="">Choose SKU</option>';
+        for(const art of articles) {
+            opt += `<option value="${art.sku}">${art.sku} - ${art.name}</option>`;
+        }
+        document.getElementById('delivery-article-sku').innerHTML = opt;
+    }
+    // Logout
+    function logout() {
+        localStorage.removeItem('private_login');
+        location.reload();
+    }
+    // Initialize
+    function main() {
+        renderArticles();
+        renderStock();
+        renderDelivery();
+        showTab('articles');
+    }
+    main();
+</script>
+</body>
+</html>
