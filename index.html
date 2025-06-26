@@ -10,7 +10,6 @@
       --azulor-main: #04243d;
       --azulor-secondary: #0a375e;
       --azulor-light: #e3eaf2;
-      --azulor-accent: #1e90ff;
       --bg: #f7f9fa;
       --radius: 18px;
       --shadow: 0 4px 24px rgba(4,36,61,0.09);
@@ -28,6 +27,7 @@
     }
     body {
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       background: var(--bg);
@@ -39,7 +39,6 @@
       width: 100%;
       background: var(--bg);
     }
-    /* Sidebar */
     .sidebar {
       width: var(--sidebar-width);
       background: var(--azulor-main);
@@ -100,7 +99,6 @@
       color: #fff;
       font-weight: 700;
     }
-    /* Topbar */
     .topbar {
       width: 100%;
       padding: 2.3rem 1rem 1.5rem 1rem;
@@ -115,7 +113,6 @@
       letter-spacing: 1px;
       margin: 0 0 0.5rem 0;
     }
-    /* Main content area */
     .main-content {
       flex: 1 1 auto;
       min-height: 100px;
@@ -127,7 +124,6 @@
       transition: all var(--transition);
       padding: 0;
     }
-    /* Cards */
     .dashboard-row {
       display: flex;
       justify-content: center;
@@ -175,7 +171,6 @@
       font-size: 1.13rem;
       font-style: italic;
     }
-    /* Table */
     .az-table-wrap {
       width: 100%;
       overflow-x: auto;
@@ -221,7 +216,6 @@
     }
     .badge.pago { background:#e8f5e9; color:#388e3c; }
     .badge.pendente { background:#fffbe6; color:#b26a00; }
-    /* Modal */
     .modal-bg {
       display:none;
       position:fixed;
@@ -280,10 +274,10 @@
       border-radius:7px;
       cursor:pointer;
     }
-    /* Footer */
     footer {
       width: 100%;
       flex-shrink: 0;
+      margin-top: auto;
       background: none;
     }
     .footer-inner {
@@ -304,7 +298,6 @@
       margin-bottom: 0.5rem;
       margin-top: 0.5rem;
     }
-    /* Responsive */
     @media (max-width: 1100px) {
       .dashboard-row { flex-direction: column; align-items: center; gap: 18px;}
       .dashboard-card { min-width: 220px; max-width: 95vw;}
@@ -332,7 +325,7 @@
         <button class="nav-link" id="nav-pagamentos">Pagamentos</button>
       </nav>
     </div>
-    <div style="flex:1;display:flex;flex-direction:column;">
+    <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
       <div class="topbar">
         <h1 class="topbar-title" id="topbar-title">Bem-vindo à Plataforma Azulor</h1>
       </div>
