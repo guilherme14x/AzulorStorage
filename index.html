@@ -223,15 +223,21 @@
     .modal {
       background: #fff;
       border-radius: var(--radius);
-      max-width: 400px;
-      width: 95vw;
-      padding: 2rem 1.5rem 1.5rem 1.5rem;
+      max-width: 600px;   /* wider modal */
+      width: 98vw;
+      padding: 2rem 2rem 1.5rem 2rem;
       position: relative;
       box-shadow: 0 8px 32px rgba(0,0,0,0.30);
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
+      transition: max-width 0.2s;
+    }
+    @media (min-width: 700px) {
+      .modal {
+        max-width: 700px;
+      }
     }
     .modal .close-btn {
       position: absolute;
@@ -500,7 +506,7 @@ function renderPedidos() {
   });
 }
 
-// Simple customer record modal (version 4, classic)
+// Simple customer record modal (version 4, classic), now wider too
 function showClienteRecordModalV4(nome) {
   const cliente = state.clientes.find(c => c.nome === nome);
   if (!cliente) {
