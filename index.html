@@ -6,8 +6,19 @@
   <title>Azulor Plataforma - Gestão de Clientes</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --azulor-main: #04243d;
+      --azulor-light: #133d61;
+      --azulor-accent: #e3eaf2;
+      --azulor-hover: #0a375e;
+      --azulor-focus: #1e90ff;
+      --shadow: 0 4px 16px rgba(0,0,0,0.13);
+      --radius: 10px;
+      --error: #d32f2f;
+      --success: #388e3c;
+    }
     html, body {
-      height: 100%;
+      min-height: 100%;
       margin: 0;
       padding: 0;
       box-sizing: border-box;
@@ -22,7 +33,7 @@
     }
     .main-header, footer {
       width: 100%;
-      background: #04243d;
+      background: var(--azulor-main);
       color: #fff;
       padding: 0;
     }
@@ -44,7 +55,7 @@
       width: 70px;
       height: 70px;
       background: #fff;
-      border-radius: 8px;
+      border-radius: var(--radius);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -85,26 +96,30 @@
       font-weight: 500;
       font-size: 1.15rem;
       letter-spacing: 1px;
-      transition: color 0.2s;
-      padding-bottom: 2px;
+      transition: color 0.2s, border-color 0.2s;
+      padding-bottom: 4px;
       border-bottom: 2px solid transparent;
       cursor: pointer;
       background: none;
       border: none;
       outline: none;
+      border-radius: 0 0 var(--radius) var(--radius);
     }
     .main-nav a.active,
-    .main-nav a:hover {
+    .main-nav a:hover,
+    .main-nav a:focus {
       color: #fff;
-      border-bottom: 2px solid #fff;
+      border-bottom: 2.5px solid var(--azulor-focus);
       font-weight: 700;
+      background: var(--azulor-hover);
+      outline: none;
     }
     main {
       flex: 1 0 auto;
       width: 100%;
       max-width: 1300px;
       margin: 0 auto;
-      padding: 2rem 0 0 0;
+      padding: 2rem 1rem 0 1rem;
       background: #f7f7f7;
       min-height: 400px;
       display: flex;
@@ -114,7 +129,7 @@
     .section-title {
       font-size: 2rem;
       font-weight: 700;
-      color: #133d61;
+      color: var(--azulor-light);
       margin-bottom: 2rem;
       letter-spacing: 1px;
       text-align: center;
@@ -124,9 +139,27 @@
       gap: 1rem;
       margin-bottom: 1.5rem;
       justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+    .search-bar {
+      flex: 1;
+      min-width: 200px;
+      margin-right: auto;
+    }
+    .search-bar input[type="search"] {
+      width: 100%;
+      padding: 0.6rem 1rem;
+      border: 1px solid #cdd5de;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-family: inherit;
+    }
+    .search-bar input[type="search"]:focus {
+      border-color: var(--azulor-focus);
+      outline: 2px solid var(--azulor-focus);
     }
     button, .btn {
-      background: #0d253a;
+      background: var(--azulor-main);
       color: #fff;
       font-weight: 700;
       font-size: 1rem;
@@ -134,19 +167,23 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.2s, box-shadow 0.2s;
       outline: none;
+      box-shadow: 0 1.5px 5px rgba(2,36,61,0.07);
     }
-    button:hover, .btn:hover {
-      background: #133d61;
+    button:hover, .btn:hover,
+    button:focus, .btn:focus {
+      background: var(--azulor-hover);
+      outline: 2px solid var(--azulor-focus);
     }
     .data-table {
       width: 100%;
       border-collapse: collapse;
       background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
       overflow: hidden;
+      margin-bottom: 2rem;
     }
     .data-table th, .data-table td {
       padding: 1rem;
@@ -155,15 +192,24 @@
       font-size: 1rem;
     }
     .data-table th {
-      background: #f3f6fa;
-      color: #04243d;
+      background: var(--azulor-accent);
+      color: var(--azulor-main);
       font-weight: 700;
+    }
+    .data-table tr:nth-child(even) td {
+      background: #f8fbfd;
+    }
+    .data-table tr:focus-within {
+      outline: 2px solid var(--azulor-focus);
+      background: #e8f1fa;
     }
     .data-table tr:last-child td {
       border-bottom: none;
     }
     .client-actions button {
       margin-right: 0.5rem;
+      font-size: 1.05em;
+      padding: 0.4em 0.7em;
     }
     .modal-bg {
       position: fixed;
@@ -176,7 +222,7 @@
     }
     .modal {
       background: #fff;
-      border-radius: 12px;
+      border-radius: var(--radius);
       max-width: 400px;
       width: 95vw;
       padding: 2rem 1.5rem 1.5rem 1.5rem;
@@ -202,7 +248,7 @@
       text-align: left;
       margin-bottom: 0.3rem;
       font-weight: 600;
-      color: #003366;
+      color: var(--azulor-main);
     }
     .modal input, .modal textarea, .modal select {
       width: 100%;
@@ -217,6 +263,17 @@
       resize: vertical;
       min-height: 50px;
     }
+    .feedback {
+      margin-bottom: 1rem;
+      padding: 0.8rem 1.2rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 1rem;
+      box-shadow: var(--shadow);
+      display: none;
+    }
+    .feedback.success { background: #e8f5e9; color: var(--success); display: block; }
+    .feedback.error { background: #ffebee; color: var(--error); display: block; }
     .footer-inner {
       flex-direction: column;
       align-items: center;
@@ -234,28 +291,21 @@
       font-size: 0.95rem;
       color: #ccc;
     }
+    @media (max-width: 900px) {
+      .main-header-inner, .footer-inner { flex-direction: column; gap: 1rem; height: auto; }
+      .main-nav { width: 100%; justify-content: center; }
+    }
     @media (max-width: 700px) {
-      .main-header-inner {
-        flex-direction: column;
-        height: auto;
-        padding: 1rem !important;
-        gap: 1.2rem;
-      }
-      main {
-        padding: 0.5rem;
-      }
-      .section-title {
-        font-size: 1.2rem;
-      }
-      .data-table th, .data-table td {
-        padding: 0.7rem;
-        font-size: 0.95rem;
-      }
+      main { padding: 0.5rem; }
+      .section-title { font-size: 1.2rem; }
+      .data-table th, .data-table td { padding: 0.7rem; font-size: 0.96rem; }
+      .branding-logo { width: 55px; height: 55px; }
+      .branding-logo img { width: 45px; height: 45px; }
     }
   </style>
 </head>
 <body>
-  <header class="main-header">
+  <header class="main-header" aria-label="Cabeçalho principal">
     <div class="main-header-inner">
       <div class="branding">
         <div class="branding-logo">
@@ -266,11 +316,11 @@
           <span class="subtitulo">Plataforma de Gestão</span>
         </div>
       </div>
-      <nav class="main-nav">
-        <a href="#" id="nav-dashboard" class="active">Dashboard</a>
-        <a href="#" id="nav-clientes">Clientes</a>
-        <a href="#" id="nav-pedidos">Pedidos</a>
-        <a href="#" id="nav-pagamentos">Pagamentos</a>
+      <nav class="main-nav" aria-label="Navegação principal">
+        <a href="#" id="nav-dashboard" class="active" tabindex="0">Dashboard</a>
+        <a href="#" id="nav-clientes" tabindex="0">Clientes</a>
+        <a href="#" id="nav-pedidos" tabindex="0">Pedidos</a>
+        <a href="#" id="nav-pagamentos" tabindex="0">Pagamentos</a>
       </nav>
     </div>
   </header>
@@ -282,6 +332,7 @@
     </div>
   </footer>
   <div id="modal-container" style="display:none;"></div>
+  <div id="feedback" class="feedback"></div>
 <script>
 const state = {
   clientes: [
@@ -299,11 +350,20 @@ const state = {
   nextClienteId: 3,
   nextPedidoId: 104,
   nextPagamentoId: 202,
+  clientFilter: ""
 };
 
 function setActiveNav(id) {
   document.querySelectorAll('.main-nav a').forEach(a => a.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+}
+
+function showFeedback(msg, type='success') {
+  const fb = document.getElementById('feedback');
+  fb.textContent = msg;
+  fb.className = `feedback ${type}`;
+  fb.style.display = 'block';
+  setTimeout(() => { fb.style.display = 'none'; }, 2000);
 }
 
 function renderDashboard() {
@@ -331,12 +391,25 @@ function renderDashboard() {
 function renderClientes() {
   setActiveNav('nav-clientes');
   const main = document.getElementById('main-content');
+  // Filter
+  let clientes = state.clientes;
+  if (state.clientFilter) {
+    const f = state.clientFilter.toLowerCase();
+    clientes = clientes.filter(c =>
+      c.nome.toLowerCase().includes(f) ||
+      c.email.toLowerCase().includes(f) ||
+      c.telefone.toLowerCase().includes(f)
+    );
+  }
   main.innerHTML = `
     <div class="section-title">Clientes</div>
     <div class="actions-bar">
+      <div class="search-bar">
+        <input type="search" id="clienteSearch" placeholder="Buscar cliente por nome, email, telefone..." value="${state.clientFilter || ""}">
+      </div>
       <button onclick="showClienteModal()">+ Novo Cliente</button>
     </div>
-    <table class="data-table">
+    <table class="data-table" aria-label="Lista de clientes">
       <thead>
         <tr>
           <th>Nome</th>
@@ -349,8 +422,10 @@ function renderClientes() {
         </tr>
       </thead>
       <tbody>
-        ${state.clientes.map(c => `
-          <tr>
+        ${clientes.length === 0
+          ? `<tr><td colspan="7" style="text-align:center;color:#888;">Nenhum cliente encontrado.</td></tr>`
+          : clientes.map(c => `
+          <tr tabindex="0">
             <td>${c.nome}</td>
             <td>${c.email}</td>
             <td>${c.telefone}</td>
@@ -358,14 +433,18 @@ function renderClientes() {
             <td>${c.pendente}</td>
             <td>${c.total}</td>
             <td class="client-actions">
-              <button onclick="showEditClienteModal(${c.id})" title="Editar">✏️</button>
-              <button onclick="deleteCliente(${c.id})" title="Remover">🗑️</button>
+              <button onclick="showEditClienteModal(${c.id})" title="Editar" aria-label="Editar cliente">✏️</button>
+              <button onclick="deleteCliente(${c.id})" title="Remover" aria-label="Remover cliente">🗑️</button>
             </td>
           </tr>
         `).join('')}
       </tbody>
     </table>
   `;
+  document.getElementById('clienteSearch').oninput = function() {
+    state.clientFilter = this.value;
+    renderClientes();
+  };
 }
 
 function renderPedidos() {
@@ -376,7 +455,7 @@ function renderPedidos() {
     <div class="actions-bar">
       <button onclick="showPedidoModal()">+ Novo Pedido</button>
     </div>
-    <table class="data-table">
+    <table class="data-table" aria-label="Lista de pedidos">
       <thead>
         <tr>
           <th>ID</th>
@@ -387,8 +466,10 @@ function renderPedidos() {
         </tr>
       </thead>
       <tbody>
-        ${state.pedidos.map(p => `
-          <tr>
+        ${state.pedidos.length === 0
+          ? `<tr><td colspan="5" style="text-align:center;color:#888;">Nenhum pedido registrado.</td></tr>`
+          : state.pedidos.map(p => `
+          <tr tabindex="0">
             <td>${p.id}</td>
             <td>${p.cliente}</td>
             <td>${p.data}</td>
@@ -409,7 +490,7 @@ function renderPagamentos() {
     <div class="actions-bar">
       <button onclick="showPagamentoModal()">+ Registrar Pagamento</button>
     </div>
-    <table class="data-table">
+    <table class="data-table" aria-label="Lista de pagamentos">
       <thead>
         <tr>
           <th>ID</th>
@@ -420,8 +501,10 @@ function renderPagamentos() {
         </tr>
       </thead>
       <tbody>
-        ${state.pagamentos.map(pg => `
-          <tr>
+        ${state.pagamentos.length === 0
+          ? `<tr><td colspan="5" style="text-align:center;color:#888;">Nenhum pagamento registrado.</td></tr>`
+          : state.pagamentos.map(pg => `
+          <tr tabindex="0">
             <td>${pg.id}</td>
             <td>${pg.cliente}</td>
             <td>${pg.valor}</td>
@@ -437,14 +520,14 @@ function renderPagamentos() {
 // Modal functions
 function showClienteModal() {
   showModal(`
-    <form id="novo-cliente-form" autocomplete="off">
+    <form id="novo-cliente-form" autocomplete="off" aria-label="Novo cliente">
       <div style="font-size:1.2rem;font-weight:700;margin-bottom:1rem;">Novo Cliente</div>
       <label for="nome">Nome</label>
-      <input id="nome" name="nome" required>
+      <input id="nome" name="nome" required maxlength="60" autofocus>
       <label for="email">Email</label>
-      <input id="email" name="email" type="email" required>
+      <input id="email" name="email" type="email" required maxlength="80">
       <label for="telefone">Telefone</label>
-      <input id="telefone" name="telefone" required>
+      <input id="telefone" name="telefone" required maxlength="20">
       <button type="submit">Adicionar</button>
     </form>
   `);
@@ -456,20 +539,21 @@ function showClienteModal() {
     state.clientes.push({id: state.nextClienteId++, nome, email, telefone, pedidos: 0, pendente: 0, total: 0});
     closeModal();
     renderClientes();
+    showFeedback("Cliente adicionado com sucesso!", "success");
   }
 }
 function showEditClienteModal(id) {
   const cli = state.clientes.find(c => c.id === id);
   if(!cli) return;
   showModal(`
-    <form id="edit-cliente-form" autocomplete="off">
+    <form id="edit-cliente-form" autocomplete="off" aria-label="Editar cliente">
       <div style="font-size:1.2rem;font-weight:700;margin-bottom:1rem;">Editar Cliente</div>
       <label for="nome">Nome</label>
-      <input id="nome" name="nome" required value="${cli.nome}">
+      <input id="nome" name="nome" required maxlength="60" value="${cli.nome}">
       <label for="email">Email</label>
-      <input id="email" name="email" type="email" required value="${cli.email}">
+      <input id="email" name="email" type="email" required maxlength="80" value="${cli.email}">
       <label for="telefone">Telefone</label>
-      <input id="telefone" name="telefone" required value="${cli.telefone}">
+      <input id="telefone" name="telefone" required maxlength="20" value="${cli.telefone}">
       <button type="submit">Salvar</button>
     </form>
   `);
@@ -480,6 +564,7 @@ function showEditClienteModal(id) {
     cli.telefone = this.telefone.value.trim();
     closeModal();
     renderClientes();
+    showFeedback("Cliente atualizado!", "success");
   }
 }
 function deleteCliente(id) {
@@ -487,11 +572,12 @@ function deleteCliente(id) {
     const idx = state.clientes.findIndex(c => c.id === id);
     if(idx > -1) state.clientes.splice(idx,1);
     renderClientes();
+    showFeedback("Cliente removido.", "success");
   }
 }
 function showPedidoModal() {
   showModal(`
-    <form id="novo-pedido-form" autocomplete="off">
+    <form id="novo-pedido-form" autocomplete="off" aria-label="Novo pedido">
       <div style="font-size:1.2rem;font-weight:700;margin-bottom:1rem;">Novo Pedido</div>
       <label for="cliente">Cliente</label>
       <select id="cliente" name="cliente" required>
@@ -526,11 +612,12 @@ function showPedidoModal() {
     }
     closeModal();
     renderPedidos();
+    showFeedback("Pedido adicionado!", "success");
   }
 }
 function showPagamentoModal() {
   showModal(`
-    <form id="novo-pagamento-form" autocomplete="off">
+    <form id="novo-pagamento-form" autocomplete="off" aria-label="Registrar pagamento">
       <div style="font-size:1.2rem;font-weight:700;margin-bottom:1rem;">Registrar Pagamento</div>
       <label for="cliente">Cliente</label>
       <select id="cliente" name="cliente" required>
@@ -568,26 +655,35 @@ function showPagamentoModal() {
     }
     closeModal();
     renderPagamentos();
+    showFeedback("Pagamento registrado!", "success");
   }
 }
 
 function showModal(html) {
   const modalContainer = document.getElementById('modal-container');
   modalContainer.innerHTML = `
-    <div class="modal-bg" tabindex="-1">
-      <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-bg" tabindex="-1" aria-modal="true">
+      <div class="modal" role="dialog">
         <button class="close-btn" title="Fechar" onclick="closeModal()">&times;</button>
         ${html}
       </div>
     </div>
   `;
   modalContainer.style.display = '';
+  setTimeout(() => {
+    const firstInput = modalContainer.querySelector('input,select,textarea,button');
+    if(firstInput) firstInput.focus();
+  }, 100);
   modalContainer.querySelector('.modal-bg').onclick = function(e) {
     if(e.target === this) closeModal();
+  }
+  document.onkeydown = function(e) {
+    if(e.key === 'Escape') closeModal();
   }
 }
 function closeModal() {
   document.getElementById('modal-container').style.display = 'none';
+  document.onkeydown = null;
 }
 
 // Navigation events
