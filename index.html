@@ -13,9 +13,10 @@
       --azulor-hover: #0a375e;
       --azulor-focus: #1e90ff;
       --shadow: 0 4px 16px rgba(0,0,0,0.13);
-      --radius: 10px;
+      --radius: 12px;
       --error: #d32f2f;
       --success: #388e3c;
+      --sidebar-width: 220px;
     }
     html, body {
       min-height: 100%;
@@ -28,30 +29,26 @@
       font-family: 'Inter', sans-serif;
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       color: #222;
     }
-    .main-header, footer {
-      width: 100%;
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
       background: var(--azulor-main);
       color: #fff;
-      padding: 0;
-    }
-    .main-header-inner, .footer-inner {
-      max-width: 1300px;
-      margin: 0 auto;
-      padding: 0 2rem;
+      min-height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      height: 110px;
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      box-shadow: 2px 0 10px rgba(4,36,61,0.04);
+      z-index: 100;
     }
-    .branding {
-      display: flex;
-      align-items: center;
-      gap: 1.2rem;
-    }
-    .branding-logo {
+    .sidebar .branding-logo {
+      margin-top: 2rem;
+      margin-bottom: 1rem;
       width: 70px;
       height: 70px;
       background: #fff;
@@ -59,72 +56,47 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-right: 0.5rem;
     }
-    .branding-logo img {
+    .sidebar .branding-logo img {
       width: 60px;
       height: 60px;
       object-fit: contain;
     }
-    .branding-title {
+    .sidebar nav {
+      width: 100%;
+      margin-top: 2rem;
       display: flex;
       flex-direction: column;
-      line-height: 1.1;
+      gap: 1rem;
+      align-items: flex-start;
+      padding-left: 1rem;
     }
-    .branding-title h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      letter-spacing: 2px;
-      margin: 0;
-      color: #fff;
-    }
-    .branding-title .subtitulo {
-      font-size: 0.9rem;
-      font-weight: 400;
-      color: #c8d8e4;
-      letter-spacing: 1px;
-      margin-top: 2px;
-    }
-    .main-nav {
-      display: flex;
-      gap: 2rem;
-      align-items: center;
-    }
-    .main-nav a {
+    .sidebar nav a {
       color: #fff;
       text-decoration: none;
-      font-weight: 500;
-      font-size: 1.15rem;
-      letter-spacing: 1px;
-      transition: color 0.2s, border-color 0.2s;
-      padding-bottom: 4px;
-      border-bottom: 2px solid transparent;
-      cursor: pointer;
-      background: none;
-      border: none;
-      outline: none;
-      border-radius: 0 0 var(--radius) var(--radius);
-    }
-    .main-nav a.active,
-    .main-nav a:hover,
-    .main-nav a:focus {
-      color: #fff;
-      border-bottom: 2.5px solid var(--azulor-focus);
-      font-weight: 700;
-      background: var(--azulor-hover);
-      outline: none;
-    }
-    main {
-      flex: 1 0 auto;
+      font-size: 1.16rem;
+      padding: 0.7em 1.3em 0.7em 0.8em;
+      border-radius: 0 22px 22px 0;
+      transition: background 0.18s;
+      display: block;
       width: 100%;
-      max-width: 1300px;
-      margin: 0 auto;
-      padding: 2rem 1rem 0 1rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+    }
+    .sidebar nav a.active,
+    .sidebar nav a:hover {
+      background: var(--azulor-hover);
+      color: #fff;
+      font-weight: 700;
+    }
+    /* Main content area */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1 1 auto;
+      padding: 2.5rem 2.5rem 1.5rem 2.5rem;
+      min-height: 100vh;
       background: #f7f7f7;
-      min-height: 400px;
-      display: flex;
-      flex-direction: column;
-      box-sizing: border-box;
+      transition: margin-left 0.2s;
     }
     .section-title {
       font-size: 2rem;
@@ -132,7 +104,36 @@
       color: var(--azulor-light);
       margin-bottom: 2rem;
       letter-spacing: 1px;
+      text-align: left;
+    }
+    .dashboard-cards {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem;
+    }
+    .dashboard-card {
+      background: #fff;
+      padding: 2.2rem 2.8rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      min-width: 220px;
       text-align: center;
+      flex: 1 1 220px;
+      transition: box-shadow 0.2s;
+    }
+    .dashboard-card:hover {
+      box-shadow: 0 8px 32px rgba(4,36,61,0.09);
+    }
+    .dashboard-card .card-label {
+      font-size: 1.08rem;
+      color: #133d61;
+      margin-bottom: 0.7rem;
+    }
+    .dashboard-card .card-value {
+      font-size: 2.7rem;
+      font-weight: 800;
+      color: var(--azulor-main);
     }
     .actions-bar {
       display: flex;
@@ -195,7 +196,12 @@
       background: var(--azulor-accent);
       color: var(--azulor-main);
       font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
     }
+    .data-table th.sorted-asc::after { content: " ▲"; font-size: 0.95em;}
+    .data-table th.sorted-desc::after { content: " ▼"; font-size: 0.95em;}
     .data-table tr:nth-child(even) td {
       background: #f8fbfd;
     }
@@ -211,6 +217,16 @@
       font-size: 1.05em;
       padding: 0.4em 0.7em;
     }
+    .badge {
+      padding: 3px 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.98em;
+      display: inline-block;
+    }
+    .badge.pago { background: #e8f5e9; color: #388e3c; }
+    .badge.pendente { background: #fffbe6; color: #b26a00; }
+    /* WIDER MODAL */
     .modal-bg {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -223,9 +239,9 @@
     .modal {
       background: #fff;
       border-radius: var(--radius);
-      max-width: 600px;   /* wider modal */
+      max-width: 700px;
       width: 98vw;
-      padding: 2rem 2rem 1.5rem 2rem;
+      padding: 2.5rem 2.5rem 2rem 2.5rem;
       position: relative;
       box-shadow: 0 8px 32px rgba(0,0,0,0.30);
       display: flex;
@@ -233,11 +249,13 @@
       align-items: center;
       text-align: center;
       transition: max-width 0.2s;
+      min-height: 300px;
+      font-size: 1.07rem;
+      animation: modalFadeIn 0.18s;
     }
-    @media (min-width: 700px) {
-      .modal {
-        max-width: 700px;
-      }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.94);}
+      to { opacity: 1; transform: scale(1);}
     }
     .modal .close-btn {
       position: absolute;
@@ -248,26 +266,6 @@
       font-size: 1.3rem;
       color: #444;
       cursor: pointer;
-    }
-    .modal label {
-      display: block;
-      text-align: left;
-      margin-bottom: 0.3rem;
-      font-weight: 600;
-      color: var(--azulor-main);
-    }
-    .modal input, .modal textarea, .modal select {
-      width: 100%;
-      padding: 0.7rem 0.8rem;
-      margin-bottom: 1rem;
-      border: 1px solid #d6dbdf;
-      border-radius: 4px;
-      font-size: 1rem;
-      font-family: inherit;
-    }
-    .modal textarea {
-      resize: vertical;
-      min-height: 50px;
     }
     .feedback {
       margin-bottom: 1rem;
@@ -287,22 +285,17 @@
       padding: 2rem 0.5rem 1rem 0.5rem;
       height: auto;
       background: none;
-    }
-    .footer-inner img {
-      height: 48px;
-      margin-bottom: 0.5rem;
-    }
-    .footer-inner p {
-      margin: 0;
+      color: #888;
       font-size: 0.95rem;
-      color: #ccc;
     }
+    /* Responsive */
     @media (max-width: 900px) {
-      .main-header-inner, .footer-inner { flex-direction: column; gap: 1rem; height: auto; }
-      .main-nav { width: 100%; justify-content: center; }
+      .sidebar { display: none; }
+      .main-content { margin-left: 0; padding: 1rem 0.4rem 1rem 0.4rem; }
+      .dashboard-cards { gap: 1rem;}
+      .modal { max-width: 99vw; padding: 1.5rem 0.5rem 1rem 0.5rem;}
     }
     @media (max-width: 700px) {
-      main { padding: 0.5rem; }
       .section-title { font-size: 1.2rem; }
       .data-table th, .data-table td { padding: 0.7rem; font-size: 0.96rem; }
       .branding-logo { width: 55px; height: 55px; }
@@ -311,29 +304,22 @@
   </style>
 </head>
 <body>
-  <header class="main-header" aria-label="Cabeçalho principal">
-    <div class="main-header-inner">
-      <div class="branding">
-        <div class="branding-logo">
-          <img src="logo_azulor.png" alt="AZULOR logo">
-        </div>
-        <div class="branding-title">
-          <h1 id="branding-title-main">AZULOR</h1>
-          <span class="subtitulo">Plataforma de Gestão</span>
-        </div>
-      </div>
-      <nav class="main-nav" aria-label="Navegação principal">
-        <a href="#" id="nav-dashboard" class="active" tabindex="0">Dashboard</a>
-        <a href="#" id="nav-clientes" tabindex="0">Clientes</a>
-        <a href="#" id="nav-pedidos" tabindex="0">Pedidos</a>
-        <a href="#" id="nav-pagamentos" tabindex="0">Pagamentos</a>
-      </nav>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="branding-logo">
+      <img src="logo_azulor.png" alt="AZULOR logo">
     </div>
-  </header>
-  <main id="main-content"></main>
+    <nav>
+      <a href="#" id="nav-dashboard" class="active">Dashboard</a>
+      <a href="#" id="nav-clientes">Clientes</a>
+      <a href="#" id="nav-pedidos">Pedidos</a>
+      <a href="#" id="nav-pagamentos">Pagamentos</a>
+    </nav>
+  </div>
+  <main id="main-content" class="main-content"></main>
   <footer>
     <div class="footer-inner">
-      <img src="logo_azulor.png" alt="Logo Azulor">
+      <img src="logo_azulor.png" alt="Logo Azulor" style="height:36px;">
       <p>© 2025 Azulor. Todos os direitos reservados.</p>
     </div>
   </footer>
@@ -356,11 +342,12 @@ const state = {
   nextClienteId: 3,
   nextPedidoId: 104,
   nextPagamentoId: 202,
-  clientFilter: ""
+  clientFilter: "",
+  pedidosSort: {col: null, dir: 1},
 };
 
 function setActiveNav(id) {
-  document.querySelectorAll('.main-nav a').forEach(a => a.classList.remove('active'));
+  document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
@@ -372,32 +359,36 @@ function showFeedback(msg, type='success') {
   setTimeout(() => { fb.style.display = 'none'; }, 2000);
 }
 
+// ================== DASHBOARD ======================
 function renderDashboard() {
   setActiveNav('nav-dashboard');
   const main = document.getElementById('main-content');
   main.innerHTML = `
     <div class="section-title">Bem-vindo à Plataforma Azulor</div>
-    <div style="display:flex;gap:2rem;flex-wrap:wrap;justify-content:center;">
-      <div style="background:#fff;padding:2rem 2.5rem;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.07);min-width:200px;text-align:center;">
-        <div style="font-size:1.1rem;color:#133d61;">Clientes</div>
-        <div style="font-size:2.5rem;font-weight:800;">${state.clientes.length}</div>
+    <div class="dashboard-cards">
+      <div class="dashboard-card">
+        <div class="card-label">Clientes</div>
+        <div class="card-value">${state.clientes.length}</div>
       </div>
-      <div style="background:#fff;padding:2rem 2.5rem;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.07);min-width:200px;text-align:center;">
-        <div style="font-size:1.1rem;color:#133d61;">Pedidos</div>
-        <div style="font-size:2.5rem;font-weight:800;">${state.pedidos.length}</div>
+      <div class="dashboard-card">
+        <div class="card-label">Pedidos</div>
+        <div class="card-value">${state.pedidos.length}</div>
       </div>
-      <div style="background:#fff;padding:2rem 2.5rem;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.07);min-width:200px;text-align:center;">
-        <div style="font-size:1.1rem;color:#133d61;">Pagamentos</div>
-        <div style="font-size:2.5rem;font-weight:800;">${state.pagamentos.length}</div>
+      <div class="dashboard-card">
+        <div class="card-label">Pagamentos</div>
+        <div class="card-value">${state.pagamentos.length}</div>
       </div>
+    </div>
+    <div style="margin-top:3rem;color:#888;text-align:center;">
+      <em>Selecione uma opção no menu para começar.</em>
     </div>
   `;
 }
 
+// ================== CLIENTES ======================
 function renderClientes() {
   setActiveNav('nav-clientes');
   const main = document.getElementById('main-content');
-  // Filter
   let clientes = state.clientes;
   if (state.clientFilter) {
     const f = state.clientFilter.toLowerCase();
@@ -453,9 +444,22 @@ function renderClientes() {
   };
 }
 
+// ================== PEDIDOS ======================
 function renderPedidos() {
   setActiveNav('nav-pedidos');
   const main = document.getElementById('main-content');
+  let pedidos = [...state.pedidos];
+  // Sorting
+  if(state.pedidosSort.col){
+    pedidos.sort((a,b)=>{
+      let v1 = a[state.pedidosSort.col], v2 = b[state.pedidosSort.col];
+      if(typeof v1 === 'string') v1 = v1.toLowerCase();
+      if(typeof v2 === 'string') v2 = v2.toLowerCase();
+      if(v1 < v2) return -state.pedidosSort.dir;
+      if(v1 > v2) return state.pedidosSort.dir;
+      return 0;
+    });
+  }
   main.innerHTML = `
     <div class="section-title">Pedidos</div>
     <div class="actions-bar">
@@ -464,17 +468,17 @@ function renderPedidos() {
     <table class="data-table" aria-label="Lista de pedidos">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Cliente</th>
-          <th>Data</th>
-          <th>Valor (€)</th>
-          <th>Status</th>
+          <th data-col="id">ID</th>
+          <th data-col="cliente">Cliente</th>
+          <th data-col="data">Data</th>
+          <th data-col="valor">Valor (€)</th>
+          <th data-col="status">Status</th>
         </tr>
       </thead>
       <tbody>
-        ${state.pedidos.length === 0
+        ${pedidos.length === 0
           ? `<tr><td colspan="5" style="text-align:center;color:#888;">Nenhum pedido registrado.</td></tr>`
-          : state.pedidos.map(p => `
+          : pedidos.map(p => `
           <tr tabindex="0">
             <td>${p.id}</td>
             <td>
@@ -485,9 +489,7 @@ function renderPedidos() {
             <td>${p.data}</td>
             <td>${p.valor}</td>
             <td>
-              <span style="display:inline-block;padding:0.3em 0.8em;border-radius:14px;font-weight:600;
-                background:${p.status === 'Pago' ? '#e8f5e9' : '#fffbe6'};
-                color:${p.status === 'Pago' ? '#388e3c' : '#b26a00'};">
+              <span class="badge ${p.status === 'Pago' ? 'pago' : 'pendente'}">
                 ${p.status}
               </span>
             </td>
@@ -496,7 +498,23 @@ function renderPedidos() {
       </tbody>
     </table>
   `;
-  // Add event listeners to client links
+  // Table sorting
+  main.querySelectorAll('.data-table th[data-col]').forEach(th => {
+    th.onclick = function() {
+      let col = this.getAttribute('data-col');
+      if(state.pedidosSort.col === col) {
+        state.pedidosSort.dir *= -1;
+      } else {
+        state.pedidosSort.col = col;
+        state.pedidosSort.dir = 1;
+      }
+      renderPedidos();
+      // Mark sorted column
+      main.querySelectorAll('.data-table th').forEach(th2 => th2.classList.remove('sorted-asc','sorted-desc'));
+      this.classList.add(state.pedidosSort.dir === 1 ? 'sorted-asc' : 'sorted-desc');
+    }
+  });
+  // Client link events
   document.querySelectorAll('.client-link').forEach(link => {
     link.onclick = function(e) {
       e.preventDefault();
@@ -506,33 +524,32 @@ function renderPedidos() {
   });
 }
 
-// Simple customer record modal (version 4, classic), now wider too
+// ============== MODAL: CLIENTE RECORD (WIDE, MODERN) ===============
 function showClienteRecordModalV4(nome) {
   const cliente = state.clientes.find(c => c.nome === nome);
   if (!cliente) {
     showFeedback("Cliente não encontrado.", "error");
     return;
   }
-  // Get pedidos and pagamentos for this client
   const pedidos = state.pedidos.filter(p => p.cliente === nome);
   const pagamentos = state.pagamentos.filter(pg => pg.cliente === nome);
   showModal(`
-    <div style="font-size:1.2rem;font-weight:700;margin-bottom:1rem;">Ficha do Cliente</div>
-    <div style="text-align:left;width:100%;margin-bottom:1rem;">
+    <div style="font-size:1.4rem;font-weight:700;margin-bottom:1.2rem;color:#133d61;">Ficha do Cliente</div>
+    <div style="text-align:left;width:100%;margin-bottom:1.1rem;line-height:1.6;">
       <strong>Nome:</strong> ${cliente.nome}<br>
       <strong>Email:</strong> ${cliente.email}<br>
       <strong>Telefone:</strong> ${cliente.telefone}<br>
       <strong>Pedidos:</strong> ${cliente.pedidos} | <strong>Pendentes:</strong> ${cliente.pendente} | <strong>Total (€):</strong> ${cliente.total}
     </div>
-    <div style="width:100%;margin-bottom:1.2rem;">
+    <div style="width:100%;margin-bottom:1.2rem;text-align:left;">
       <strong>Pedidos do Cliente:</strong>
       <ul style="padding-left:1.1em;margin:0;">
         ${pedidos.length === 0
           ? '<li style="color:#888;">Nenhum pedido.</li>'
-          : pedidos.map(p => `<li>ID: ${p.id}, Data: ${p.data}, Valor: €${p.valor}, Status: ${p.status}</li>`).join('')}
+          : pedidos.map(p => `<li>ID: ${p.id}, Data: ${p.data}, Valor: €${p.valor}, Status: <span class="badge ${p.status === 'Pago' ? 'pago' : 'pendente'}">${p.status}</span></li>`).join('')}
       </ul>
     </div>
-    <div style="width:100%;margin-bottom:0.5rem;">
+    <div style="width:100%;margin-bottom:0.5rem;text-align:left;">
       <strong>Pagamentos:</strong>
       <ul style="padding-left:1.1em;margin:0;">
         ${pagamentos.length === 0
@@ -544,6 +561,7 @@ function showClienteRecordModalV4(nome) {
   `);
 }
 
+// ================== PAGAMENTOS ======================
 function renderPagamentos() {
   setActiveNav('nav-pagamentos');
   const main = document.getElementById('main-content');
@@ -579,12 +597,147 @@ function renderPagamentos() {
   `;
 }
 
-// Modal functions (same as previously)
-function showClienteModal() {/* ... unchanged ... */}
-function showEditClienteModal(id) {/* ... unchanged ... */}
-function deleteCliente(id) {/* ... unchanged ... */}
-function showPedidoModal() {/* ... unchanged ... */}
-function showPagamentoModal() {/* ... unchanged ... */}
+// ================== MODALS & FORMS ======================
+function showClienteModal() {
+  showModal(`
+    <form id="novo-cliente-form" autocomplete="off" aria-label="Novo cliente">
+      <div style="font-size:1.2rem;font-weight:700;margin-bottom:1rem;">Novo Cliente</div>
+      <label for="nome">Nome</label>
+      <input id="nome" name="nome" required maxlength="60" autofocus>
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" required maxlength="80">
+      <label for="telefone">Telefone</label>
+      <input id="telefone" name="telefone" required maxlength="20">
+      <button type="submit">Adicionar</button>
+    </form>
+  `);
+  document.getElementById('novo-cliente-form').onsubmit = function(e){
+    e.preventDefault();
+    const nome = this.nome.value.trim();
+    const email = this.email.value.trim();
+    const telefone = this.telefone.value.trim();
+    state.clientes.push({id: state.nextClienteId++, nome, email, telefone, pedidos: 0, pendente: 0, total: 0});
+    closeModal();
+    renderClientes();
+    showFeedback("Cliente adicionado com sucesso!", "success");
+  }
+}
+function showEditClienteModal(id) {
+  const cli = state.clientes.find(c => c.id === id);
+  if(!cli) return;
+  showModal(`
+    <form id="edit-cliente-form" autocomplete="off" aria-label="Editar cliente">
+      <div style="font-size:1.2rem;font-weight:700;margin-bottom:1rem;">Editar Cliente</div>
+      <label for="nome">Nome</label>
+      <input id="nome" name="nome" required maxlength="60" value="${cli.nome}">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" required maxlength="80" value="${cli.email}">
+      <label for="telefone">Telefone</label>
+      <input id="telefone" name="telefone" required maxlength="20" value="${cli.telefone}">
+      <button type="submit">Salvar</button>
+    </form>
+  `);
+  document.getElementById('edit-cliente-form').onsubmit = function(e){
+    e.preventDefault();
+    cli.nome = this.nome.value.trim();
+    cli.email = this.email.value.trim();
+    cli.telefone = this.telefone.value.trim();
+    closeModal();
+    renderClientes();
+    showFeedback("Cliente atualizado!", "success");
+  }
+}
+function deleteCliente(id) {
+  if(confirm("Deseja remover este cliente?")) {
+    const idx = state.clientes.findIndex(c => c.id === id);
+    if(idx > -1) state.clientes.splice(idx,1);
+    renderClientes();
+    showFeedback("Cliente removido.", "success");
+  }
+}
+function showPedidoModal() {
+  showModal(`
+    <form id="novo-pedido-form" autocomplete="off" aria-label="Novo pedido">
+      <div style="font-size:1.2rem;font-weight:700;margin-bottom:1rem;">Novo Pedido</div>
+      <label for="cliente">Cliente</label>
+      <select id="cliente" name="cliente" required>
+        <option value="">Selecione</option>
+        ${state.clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('')}
+      </select>
+      <label for="data">Data</label>
+      <input id="data" name="data" type="date" required>
+      <label for="valor">Valor (€)</label>
+      <input id="valor" name="valor" type="number" min="0" required>
+      <label for="status">Status</label>
+      <select id="status" name="status" required>
+        <option value="Pendente">Pendente</option>
+        <option value="Pago">Pago</option>
+      </select>
+      <button type="submit">Adicionar</button>
+    </form>
+  `);
+  document.getElementById('novo-pedido-form').onsubmit = function(e){
+    e.preventDefault();
+    const cliente = this.cliente.value;
+    const data = this.data.value;
+    const valor = parseFloat(this.valor.value);
+    const status = this.status.value;
+    state.pedidos.push({id: state.nextPedidoId++, cliente, data, valor, status});
+    // Atualiza os dados do cliente também
+    const cli = state.clientes.find(c => c.nome === cliente);
+    if(cli) {
+      cli.pedidos++;
+      cli.total += valor;
+      if(status === "Pendente") cli.pendente++;
+    }
+    closeModal();
+    renderPedidos();
+    showFeedback("Pedido adicionado!", "success");
+  }
+}
+function showPagamentoModal() {
+  showModal(`
+    <form id="novo-pagamento-form" autocomplete="off" aria-label="Registrar pagamento">
+      <div style="font-size:1.2rem;font-weight:700;margin-bottom:1rem;">Registrar Pagamento</div>
+      <label for="cliente">Cliente</label>
+      <select id="cliente" name="cliente" required>
+        <option value="">Selecione</option>
+        ${state.clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('')}
+      </select>
+      <label for="valor">Valor (€)</label>
+      <input id="valor" name="valor" type="number" min="0" required>
+      <label for="data">Data</label>
+      <input id="data" name="data" type="date" required>
+      <label for="metodo">Método</label>
+      <input id="metodo" name="metodo" required>
+      <button type="submit">Registrar</button>
+    </form>
+  `);
+  document.getElementById('novo-pagamento-form').onsubmit = function(e){
+    e.preventDefault();
+    const cliente = this.cliente.value;
+    const valor = parseFloat(this.valor.value);
+    const data = this.data.value;
+    const metodo = this.metodo.value;
+    state.pagamentos.push({id: state.nextPagamentoId++, cliente, valor, data, metodo});
+    // Atualiza status dos pedidos e cliente
+    const cli = state.clientes.find(c => c.nome === cliente);
+    if(cli) {
+      // Zera pendências do cliente proporcional ao valor pago
+      let pendRestante = valor;
+      for(const p of state.pedidos.filter(p => p.cliente === cliente && p.status === 'Pendente')) {
+        if(pendRestante >= p.valor) {
+          pendRestante -= p.valor;
+          p.status = "Pago";
+          cli.pendente = Math.max(0, cli.pendente - 1);
+        }
+      }
+    }
+    closeModal();
+    renderPagamentos();
+    showFeedback("Pagamento registrado!", "success");
+  }
+}
 
 function showModal(html) {
   const modalContainer = document.getElementById('modal-container');
