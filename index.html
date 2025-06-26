@@ -11,6 +11,8 @@
       --azulor-hover: #0a375e;
       --sidebar-width: 220px;
       --footer-logo-size: 40px;
+      --card-shadow: 0 8px 24px rgba(4,36,61,0.10);
+      --radius: 16px;
     }
     html, body {
       height: 100%;
@@ -129,48 +131,65 @@
       padding: 0;
     }
     .section-title {
-      font-size: 2rem;
-      font-weight: 700;
+      font-size: 2.4rem;
+      font-weight: 800;
       color: #133d61;
-      margin: 40px 0 2rem 0;
+      margin: 30px 0 2rem 0;
       letter-spacing: 1px;
       text-align: center;
     }
-    /* Simple cards for dashboard */
-    .dashboard-cards {
+    /* Cards for dashboard */
+    .dashboard-row {
       display: flex;
-      gap: 2rem;
-      flex-wrap: wrap;
       justify-content: center;
-      margin-bottom: 2.5rem;
+      gap: 30px;
+      margin-bottom: 2rem;
+      margin-top: 10px;
+      flex-wrap: wrap;
     }
     .dashboard-card {
       background: #fff;
-      padding: 2.2rem 2.8rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      min-width: 220px;
+      padding: 38px 0 30px 0;
+      border-radius: var(--radius);
+      box-shadow: var(--card-shadow);
+      min-width: 340px;
       text-align: center;
-      flex: 1 1 220px;
+      flex: 1 1 340px;
+      max-width: 440px;
       transition: box-shadow 0.2s;
-    }
-    .dashboard-card:hover {
-      box-shadow: 0 8px 32px rgba(4,36,61,0.09);
+      margin-bottom: 10px;
     }
     .dashboard-card .card-label {
-      font-size: 1.08rem;
+      font-size: 1.15rem;
       color: #133d61;
       margin-bottom: 0.7rem;
+      font-weight: 500;
     }
     .dashboard-card .card-value {
       font-size: 2.7rem;
       font-weight: 800;
       color: var(--azulor-main);
     }
+    .dashboard-card .card-label {
+      margin-bottom: 16px;
+    }
+    .dashboard-card .card-value {
+      margin-top: 0;
+    }
+    .dashboard-info {
+      text-align: center;
+      margin-top: 40px;
+      color: #888;
+      font-size: 1.13rem;
+      font-style: italic;
+    }
+    @media (max-width: 1100px) {
+      .dashboard-row { flex-direction: column; align-items: center; gap: 18px;}
+      .dashboard-card { min-width: 240px; }
+    }
     @media (max-width: 900px) {
       .sidebar { display: none; }
       .main-content { padding: 1rem 0.4rem 1rem 0.4rem;}
-      .dashboard-cards { gap: 1rem;}
     }
   </style>
 </head>
@@ -196,26 +215,42 @@
     </div>
   </footer>
   <script>
+    // "Base de dados" para cards do dashboard
+    const db = {
+      clientes: [
+        {id: 1, nome: "Maria Silva", email: "maria@email.com", telefone: "912345678"},
+        {id: 2, nome: "Carlos Costa", email: "carlos@email.com", telefone: "913333888"}
+      ],
+      pedidos: [
+        {id: 101, cliente: "Maria Silva", data: "2025-06-12", valor: 300, status: "Pago"},
+        {id: 102, cliente: "Maria Silva", data: "2025-06-20", valor: 200, status: "Pendente"},
+        {id: 103, cliente: "Carlos Costa", data: "2025-06-22", valor: 200, status: "Pendente"},
+      ],
+      pagamentos: [
+        {id: 201, cliente: "Maria Silva", valor: 300, data: "2025-06-15", metodo: "Transferência"},
+      ]
+    };
+
     function renderDashboard() {
       const main = document.getElementById('main-content');
       main.innerHTML = `
         <div class="section-title">Bem-vindo à Plataforma Azulor</div>
-        <div class="dashboard-cards">
+        <div class="dashboard-row">
           <div class="dashboard-card">
             <div class="card-label">Clientes</div>
-            <div class="card-value">2</div>
+            <div class="card-value">${db.clientes.length}</div>
           </div>
           <div class="dashboard-card">
             <div class="card-label">Pedidos</div>
-            <div class="card-value">3</div>
+            <div class="card-value">${db.pedidos.length}</div>
           </div>
           <div class="dashboard-card">
             <div class="card-label">Pagamentos</div>
-            <div class="card-value">1</div>
+            <div class="card-value">${db.pagamentos.length}</div>
           </div>
         </div>
-        <div style="margin-top:3rem;color:#888;text-align:center;">
-          <em>Selecione uma opção no menu à esquerda para começar.</em>
+        <div class="dashboard-info">
+          Selecione uma opção no menu à esquerda para começar.
         </div>
       `;
     }
