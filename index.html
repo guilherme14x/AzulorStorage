@@ -19,18 +19,25 @@
       --sidebar-width: 220px;
     }
     html, body {
-      min-height: 100%;
+      height: 100%;
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       background: #f7f7f7;
     }
     body {
-      font-family: 'Inter', sans-serif;
       min-height: 100vh;
       display: flex;
-      flex-direction: row;
+      flex-direction: column;
+      font-family: 'Inter', sans-serif;
       color: #222;
+    }
+    .main-wrapper {
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: row;
+      min-height: 0;
+      width: 100%;
     }
     /* Sidebar */
     .sidebar {
@@ -41,7 +48,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      position: fixed;
+      position: relative;
       left: 0; top: 0; bottom: 0;
       box-shadow: 2px 0 10px rgba(4,36,61,0.04);
       z-index: 100;
@@ -91,10 +98,9 @@
     }
     /* Main content area */
     .main-content {
-      margin-left: var(--sidebar-width);
       flex: 1 1 auto;
       padding: 2.5rem 2.5rem 1.5rem 2.5rem;
-      min-height: 100vh;
+      min-height: 100px;
       background: #f7f7f7;
       transition: margin-left 0.2s;
     }
@@ -278,20 +284,30 @@
     }
     .feedback.success { background: #e8f5e9; color: var(--success); display: block; }
     .feedback.error { background: #ffebee; color: var(--error); display: block; }
+    footer {
+      width: 100%;
+      background: none;
+      flex-shrink: 0;
+    }
     .footer-inner {
+      display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 1rem;
-      padding: 2rem 0.5rem 1rem 0.5rem;
-      height: auto;
+      gap: 0.7rem;
+      padding: 2rem 0.5rem 1.2rem 0.5rem;
       background: none;
       color: #888;
-      font-size: 0.95rem;
+      font-size: 1.08rem;
+    }
+    .footer-inner img {
+      height: 38px;
+      margin-bottom: 0.5rem;
+      margin-top: 0.5rem;
     }
     /* Responsive */
     @media (max-width: 900px) {
       .sidebar { display: none; }
-      .main-content { margin-left: 0; padding: 1rem 0.4rem 1rem 0.4rem; }
+      .main-content { padding: 1rem 0.4rem 1rem 0.4rem;}
       .dashboard-cards { gap: 1rem;}
       .modal { max-width: 99vw; padding: 1.5rem 0.5rem 1rem 0.5rem;}
     }
@@ -304,22 +320,24 @@
   </style>
 </head>
 <body>
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <div class="branding-logo">
-      <img src="logo_azulor.png" alt="AZULOR logo">
+  <div class="main-wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="branding-logo">
+        <img src="logo_azulor.png" alt="AZULOR logo">
+      </div>
+      <nav>
+        <a href="#" id="nav-dashboard" class="active">Dashboard</a>
+        <a href="#" id="nav-clientes">Clientes</a>
+        <a href="#" id="nav-pedidos">Pedidos</a>
+        <a href="#" id="nav-pagamentos">Pagamentos</a>
+      </nav>
     </div>
-    <nav>
-      <a href="#" id="nav-dashboard" class="active">Dashboard</a>
-      <a href="#" id="nav-clientes">Clientes</a>
-      <a href="#" id="nav-pedidos">Pedidos</a>
-      <a href="#" id="nav-pagamentos">Pagamentos</a>
-    </nav>
+    <main id="main-content" class="main-content"></main>
   </div>
-  <main id="main-content" class="main-content"></main>
   <footer>
     <div class="footer-inner">
-      <img src="logo_azulor.png" alt="Logo Azulor" style="height:36px;">
+      <img src="logo_azulor.png" alt="Logo Azulor">
       <p>© 2025 Azulor. Todos os direitos reservados.</p>
     </div>
   </footer>
