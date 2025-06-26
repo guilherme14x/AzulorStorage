@@ -3,43 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Azulor Plataforma - Gestão de Clientes</title>
+  <title>Azulor Plataforma</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --azulor-main: #04243d;
-      --azulor-hover: #0a375e;
-      --sidebar-width: 220px;
-      --footer-logo-size: 40px;
-      --card-shadow: 0 8px 24px rgba(4,36,61,0.10);
+      --azulor-secondary: #0a375e;
+      --azulor-light: #e3eaf2;
+      --azulor-accent: #1e90ff;
+      --bg: #f7f9fa;
       --radius: 18px;
-      --text-dark: #04243d;
-      --text-muted: #6d7787;
-      --bg-light: #f7f7f7;
-      --bg-card: #fff;
+      --shadow: 0 4px 24px rgba(4,36,61,0.09);
+      --sidebar-width: 225px;
+      --transition: 0.19s cubic-bezier(.4,0,.2,1);
     }
     html, body {
       height: 100%;
       margin: 0;
       padding: 0;
+      background: var(--bg);
       box-sizing: border-box;
-      background: var(--bg-light);
+      font-family: 'Inter', Arial, sans-serif;
+      color: #102030;
     }
     body {
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      font-family: 'Inter', sans-serif;
-      color: var(--text-dark);
-      height: 100vh;
+      background: var(--bg);
     }
     .main-wrapper {
       flex: 1 0 auto;
       display: flex;
-      flex-direction: row;
       min-height: 0;
       width: 100%;
-      background: var(--bg-light);
+      background: var(--bg);
     }
     /* Sidebar */
     .sidebar {
@@ -50,216 +48,169 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      position: relative;
-      left: 0; top: 0; bottom: 0;
       box-shadow: 2px 0 10px rgba(4,36,61,0.04);
       z-index: 100;
+      position: relative;
+      transition: all var(--transition);
     }
-    .sidebar .branding-logo {
-      margin-top: 2rem;
-      margin-bottom: 1.5rem;
-      width: 72px;
-      height: 72px;
+    .branding-logo {
+      margin-top: 2.5rem;
+      margin-bottom: 2rem;
+      width: 78px;
+      height: 78px;
       background: #fff;
-      border-radius: 16px;
+      border-radius: 15px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 8px rgba(4,36,61,0.03);
+      box-shadow: 0 2px 8px rgba(4,36,61,0.04);
     }
-    .sidebar .branding-logo img {
-      width: 60px;
-      height: 60px;
+    .branding-logo img {
+      width: 62px;
+      height: 62px;
       object-fit: contain;
-      display: block;
     }
     .sidebar nav {
       width: 100%;
-      margin-top: 0.8rem;
+      margin-top: 1.2rem;
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
       align-items: flex-start;
-      padding-left: 1.4rem;
+      padding-left: 1.5rem;
     }
-    .sidebar nav a {
+    .nav-link {
       color: #fff;
       text-decoration: none;
-      font-size: 1.14rem;
-      padding: 0.65em 1.2em 0.65em 0.9em;
+      font-size: 1.18rem;
+      padding: 0.7em 1.3em 0.7em 1em;
       border-radius: 0 22px 22px 0;
-      transition: background 0.16s;
-      display: block;
-      width: 96%;
+      transition: background var(--transition);
       font-weight: 500;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.2px;
+      width: 100%;
       outline: none;
       border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
     }
-    .sidebar nav a.active,
-    .sidebar nav a:hover,
-    .sidebar nav a:focus {
-      background: var(--azulor-hover);
+    .nav-link.active, .nav-link:hover, .nav-link:focus {
+      background: var(--azulor-secondary);
       color: #fff;
       font-weight: 700;
     }
-    /* Footer at the bottom, centered content */
-    footer {
+    /* Topbar */
+    .topbar {
       width: 100%;
-      flex-shrink: 0;
-      background: none;
+      padding: 2.3rem 1rem 1.5rem 1rem;
+      box-sizing: border-box;
+      text-align: center;
+      background: var(--bg);
     }
-    .footer-inner {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.7rem;
-      padding: 2rem 0.5rem 1.2rem 0.5rem;
-      background: none;
-      color: #888;
-      font-size: 1.08rem;
-    }
-    .footer-inner img {
-      height: var(--footer-logo-size);
-      width: var(--footer-logo-size);
-      object-fit: contain;
-      margin-bottom: 0.5rem;
-      margin-top: 0.5rem;
-      display: block;
+    .topbar-title {
+      font-size: 2.35rem;
+      font-weight: 800;
+      color: var(--azulor-main);
+      letter-spacing: 1px;
+      margin: 0 0 0.5rem 0;
     }
     /* Main content area */
     .main-content {
       flex: 1 1 auto;
       min-height: 100px;
-      background: var(--bg-light);
+      background: var(--bg);
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
       align-items: stretch;
+      position: relative;
+      transition: all var(--transition);
       padding: 0;
     }
-    .section-title {
-      font-size: 2.45rem;
-      font-weight: 800;
-      color: var(--azulor-main);
-      margin: 38px 0 2.4rem 0;
-      letter-spacing: 1px;
-      text-align: center;
-    }
-    /* Cards for dashboard */
+    /* Cards */
     .dashboard-row {
       display: flex;
       justify-content: center;
-      gap: 36px;
-      margin-bottom: 2.6rem;
-      margin-top: 2px;
+      gap: 38px;
+      margin-bottom: 2.2rem;
+      margin-top: 16px;
       flex-wrap: wrap;
-      align-items: flex-start;
     }
     .dashboard-card {
-      background: var(--bg-card);
-      padding: 35px 0 28px 0;
+      background: #fff;
+      padding: 38px 0 28px 0;
       border-radius: var(--radius);
-      box-shadow: var(--card-shadow);
-      min-width: 320px;
+      box-shadow: var(--shadow);
+      min-width: 280px;
+      max-width: 320px;
+      flex: 1 1 280px;
       text-align: center;
-      flex: 1 1 320px;
-      max-width: 420px;
-      transition: box-shadow 0.2s, transform 0.17s;
-      margin-bottom: 12px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      position: relative;
+      margin-bottom: 10px;
       border: 1px solid #f0f0f0;
+      transition: box-shadow var(--transition), transform var(--transition);
+      cursor: pointer;
+      user-select: none;
     }
     .dashboard-card .card-label {
-      font-size: 1.13rem;
-      color: var(--azulor-hover);
+      font-size: 1.1rem;
+      color: var(--azulor-secondary);
       margin-bottom: 14px;
       font-weight: 600;
       letter-spacing: 0.5px;
     }
     .dashboard-card .card-value {
-      font-size: 2.8rem;
+      font-size: 2.75rem;
       font-weight: 800;
       color: var(--azulor-main);
       margin-top: 0;
-      letter-spacing: 1.5px;
-    }
-    .dashboard-card .card-icon {
-      position: absolute;
-      left: 20px;
-      top: 20px;
-      font-size: 2.1rem;
-      color: var(--azulor-hover);
-      opacity: 0.10;
-      pointer-events: none;
+      letter-spacing: 1.2px;
     }
     .dashboard-info {
       text-align: center;
-      margin-top: 44px;
+      margin-top: 34px;
       color: #888;
-      font-size: 1.15rem;
+      font-size: 1.13rem;
       font-style: italic;
     }
-    /* Pedidos table */
-    .pedidos-container {
-      max-width: 1050px;
-      margin: 0 auto;
-      padding-top: 38px;
+    /* Table */
+    .az-table-wrap {
       width: 100%;
+      overflow-x: auto;
+      margin: 0 auto;
+      max-width: 970px;
+      background: none;
     }
-    .pedidos-header {
-      text-align: center;
-      color: #04243d;
-      font-size: 2.6rem;
-      font-weight: 800;
-      margin-bottom: 38px;
+    .az-table {
+      width: 100%;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      border-collapse: collapse;
+      overflow: hidden;
     }
-    .pedidos-actions {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 26px;
+    .az-table th, .az-table td {
+      padding: 1.1em 0.8em;
+      text-align: left;
+      font-size: 1.08rem;
     }
-    .pedidos-actions button {
-      background: #04243d;
-      color: #fff;
-      padding: 0.75em 1.6em;
-      font-size: 1rem;
-      font-weight: 600;
-      border: none;
-      border-radius: 7px;
-      box-shadow: 0 1px 8px rgba(4,36,61,0.06);
-      cursor: pointer;
-      transition: background 0.18s;
+    .az-table th {
+      background: var(--azulor-light);
+      color: var(--azulor-main);
+      font-weight: 700;
+      letter-spacing: 0.2px;
     }
-    .pedidos-table {
-      width:100%;
-      border-collapse:collapse;
-      background:#fff;
-      border-radius:16px;
-      box-shadow:0 4px 16px rgba(0,0,0,0.08);
-      overflow:hidden;
+    .az-table tr {
+      border-bottom: 1px solid #f2f2f2;
     }
-    .pedidos-table th, .pedidos-table td {
-      padding:1.1em 0.6em;
-      text-align:left;
+    .az-table tr:last-child {
+      border-bottom: none;
     }
-    .pedidos-table th {
-      background:#e3eaf2;
-      color:#04243d;
-      font-weight:700;
-    }
-    .pedidos-table tr {
-      border-bottom:1px solid #f2f2f2;
-    }
-    .pedidos-table tr:last-child {
-      border-bottom:none;
-    }
-    .pedidos-table td {
-      font-size:1rem;
+    .az-table td {
+      font-size: 1.04rem;
+      background: #fff;
     }
     .badge {
       display:inline-block;
@@ -285,7 +236,7 @@
       max-width:390px;
       width:96vw;
       padding:32px 26px 22px 26px;
-      border-radius:12px;
+      border-radius:14px;
       box-shadow:0 8px 28px rgba(4,36,61,0.12);
       position:relative;
     }
@@ -329,17 +280,41 @@
       border-radius:7px;
       cursor:pointer;
     }
+    /* Footer */
+    footer {
+      width: 100%;
+      flex-shrink: 0;
+      background: none;
+    }
+    .footer-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.7rem;
+      padding: 2rem 0.5rem 1.2rem 0.5rem;
+      background: none;
+      color: #888;
+      font-size: 1.08rem;
+    }
+    .footer-inner img {
+      height: 40px;
+      width: 40px;
+      object-fit: contain;
+      margin-bottom: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    /* Responsive */
     @media (max-width: 1100px) {
       .dashboard-row { flex-direction: column; align-items: center; gap: 18px;}
-      .dashboard-card { min-width: 240px; }
+      .dashboard-card { min-width: 220px; max-width: 95vw;}
     }
     @media (max-width: 900px) {
       .sidebar { display: none; }
       .main-content { padding: 1rem 0.4rem 1rem 0.4rem;}
-      .pedidos-container { padding-top: 14px;}
     }
     @media (max-width: 600px) {
-      .section-title { font-size: 1.35rem;}
+      .topbar-title { font-size: 1.28rem;}
       .dashboard-card { min-width: 90vw; max-width: 98vw;}
     }
   </style>
@@ -351,13 +326,18 @@
         <img src="logo_azulor.png" alt="AZULOR logo">
       </div>
       <nav>
-        <a href="#" id="nav-dashboard" class="active">Dashboard</a>
-        <a href="#" id="nav-clientes">Clientes</a>
-        <a href="#" id="nav-pedidos">Pedidos</a>
-        <a href="#" id="nav-pagamentos">Pagamentos</a>
+        <button class="nav-link active" id="nav-dashboard">Dashboard</button>
+        <button class="nav-link" id="nav-clientes">Clientes</button>
+        <button class="nav-link" id="nav-pedidos">Pedidos</button>
+        <button class="nav-link" id="nav-pagamentos">Pagamentos</button>
       </nav>
     </div>
-    <main id="main-content" class="main-content"></main>
+    <div style="flex:1;display:flex;flex-direction:column;">
+      <div class="topbar">
+        <h1 class="topbar-title" id="topbar-title">Bem-vindo à Plataforma Azulor</h1>
+      </div>
+      <main id="main-content" class="main-content"></main>
+    </div>
   </div>
   <footer>
     <div class="footer-inner">
@@ -387,7 +367,7 @@
     </div>
   </div>
   <script>
-    // "Base de dados" para cards do dashboard e pedidos
+    // "Base de dados" (dummy para demo, pronto para backend real)
     const db = {
       clientes: [
         {id: 1, nome: "Maria Silva", email: "maria@email.com", telefone: "912345678"},
@@ -403,23 +383,30 @@
       ]
     };
 
+    // Navigation state
+    function setActiveNav(id) {
+      document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+    function setTitle(text) {
+      document.getElementById('topbar-title').textContent = text;
+    }
+
+    // Dashboard
     function renderDashboard() {
+      setTitle('Bem-vindo à Plataforma Azulor');
       const main = document.getElementById('main-content');
       main.innerHTML = `
-        <div class="section-title">Bem-vindo à Plataforma Azulor</div>
         <div class="dashboard-row">
           <div class="dashboard-card">
-            <span class="card-icon">👤</span>
             <div class="card-label">Clientes</div>
             <div class="card-value">${db.clientes.length}</div>
           </div>
           <div class="dashboard-card">
-            <span class="card-icon">📝</span>
             <div class="card-label">Pedidos</div>
             <div class="card-value">${db.pedidos.length}</div>
           </div>
           <div class="dashboard-card">
-            <span class="card-icon">💶</span>
             <div class="card-label">Pagamentos</div>
             <div class="card-value">${db.pagamentos.length}</div>
           </div>
@@ -430,55 +417,115 @@
       `;
     }
 
-    function renderPedidos() {
+    // Clientes
+    function renderClientes() {
+      setTitle('Clientes');
       const main = document.getElementById('main-content');
       main.innerHTML = `
-        <div class="pedidos-container">
-          <div class="pedidos-header">Pedidos</div>
-          <div class="pedidos-actions">
-            <button id="btnNovoPedido">+ Novo Pedido</button>
+        <div class="az-table-wrap">
+          <table class="az-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Telefone</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${db.clientes.map(c => `
+                <tr>
+                  <td>${c.id}</td>
+                  <td>${c.nome}</td>
+                  <td>${c.email}</td>
+                  <td>${c.telefone}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // Pedidos
+    function renderPedidos() {
+      setTitle('Pedidos');
+      const main = document.getElementById('main-content');
+      main.innerHTML = `
+        <div class="az-table-wrap" style="margin-top:0;">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:18px;">
+            <button id="btnNovoPedido" style="background: #04243d;color: #fff;padding: 0.67em 1.5em;font-size: 1rem;font-weight: 600;border: none;border-radius: 7px;box-shadow: 0 1px 8px rgba(4,36,61,0.06);cursor: pointer;">
+              + Novo Pedido
+            </button>
           </div>
-          <div id="pedidosTableWrapper"></div>
-        </div>`;
+          <table class="az-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Data</th>
+                <th>Valor (€)</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="pedidosTableBody"></tbody>
+          </table>
+        </div>
+      `;
       document.getElementById('btnNovoPedido').onclick = openPedidoModal;
       renderPedidosTable();
     }
-
     function renderPedidosTable() {
-      let html = `
-        <table class="pedidos-table">
-          <thead>
+      document.getElementById('pedidosTableBody').innerHTML = db.pedidos.length === 0
+        ? `<tr><td colspan="5" style="text-align:center;color:#888;padding:2em;">Nenhum pedido cadastrado.</td></tr>`
+        : db.pedidos.map(p => `
             <tr>
-              <th>ID</th>
-              <th>Cliente</th>
-              <th>Data</th>
-              <th>Valor (€)</th>
-              <th>Status</th>
+              <td style="text-align:center;">${p.id}</td>
+              <td>${p.cliente}</td>
+              <td>${p.data}</td>
+              <td style="text-align:right;">${Number(p.valor).toFixed(2)}</td>
+              <td>
+                <span class="badge ${p.status==='Pago'?'pago':'pendente'}">
+                  ${p.status}
+                </span>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            ${db.pedidos.length === 0 ? 
-              `<tr><td colspan="5" style="text-align:center;color:#888;padding:2em;">Nenhum pedido cadastrado.</td></tr>` :
-              db.pedidos.map(p => `
-                <tr>
-                  <td style="text-align:center;">${p.id}</td>
-                  <td>${p.cliente}</td>
-                  <td>${p.data}</td>
-                  <td style="text-align:right;">${Number(p.valor).toFixed(2)}</td>
-                  <td>
-                    <span class="badge ${p.status==='Pago'?'pago':'pendente'}">
-                      ${p.status}
-                    </span>
-                  </td>
-                </tr>
-              `).join('')
-            }
-          </tbody>
-        </table>
-      `;
-      document.getElementById('pedidosTableWrapper').innerHTML = html;
+          `).join('');
     }
 
+    // Pagamentos
+    function renderPagamentos() {
+      setTitle('Pagamentos');
+      const main = document.getElementById('main-content');
+      main.innerHTML = `
+        <div class="az-table-wrap">
+          <table class="az-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Valor (€)</th>
+                <th>Data</th>
+                <th>Método</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${db.pagamentos.map(pg => `
+                <tr>
+                  <td>${pg.id}</td>
+                  <td>${pg.cliente}</td>
+                  <td style="text-align:right;">${pg.valor.toFixed(2)}</td>
+                  <td>${pg.data}</td>
+                  <td>${pg.metodo}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // Pedido Modal
     function openPedidoModal() {
       document.getElementById('pedidoModalBg').style.display = 'flex';
       document.getElementById('pedidoForm').reset();
@@ -500,10 +547,7 @@
       renderPedidosTable();
     };
 
-    function setActiveNav(id) {
-      document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    }
+    // Navigation events
     document.getElementById('nav-dashboard').onclick = (e)=>{
       e.preventDefault();
       setActiveNav('nav-dashboard');
@@ -512,7 +556,7 @@
     document.getElementById('nav-clientes').onclick = (e)=>{
       e.preventDefault();
       setActiveNav('nav-clientes');
-      document.getElementById('main-content').innerHTML = `<div class="section-title">Clientes</div><div style="margin:auto;max-width:500px;width:100%;text-align:center;"><p>Funcionalidade em breve...</p></div>`;
+      renderClientes();
     };
     document.getElementById('nav-pedidos').onclick = (e)=>{
       e.preventDefault();
@@ -522,8 +566,9 @@
     document.getElementById('nav-pagamentos').onclick = (e)=>{
       e.preventDefault();
       setActiveNav('nav-pagamentos');
-      document.getElementById('main-content').innerHTML = `<div class="section-title">Pagamentos</div><div style="margin:auto;max-width:500px;width:100%;text-align:center;"><p>Funcionalidade em breve...</p></div>`;
+      renderPagamentos();
     };
+
     // Initial page
     renderDashboard();
   </script>
