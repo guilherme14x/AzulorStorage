@@ -510,65 +510,7 @@
     .az-table td:nth-child(3) {
       text-align: center;
     }
-  
-<style>
-  #floatingLoginsBtn {
-    display: none;
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #04243d;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 18px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 9999;
-    transition: background 0.2s;
-  }
-  #floatingLoginsBtn:hover {
-    background-color: #0a375e;
-  }
-
-<style>
-  #floatingLoginsBtn {
-    display: none;
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #04243d;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 58px;
-    height: 58px;
-    font-size: 24px;
-    font-weight: bold;
-    text-align: center;
-    line-height: 58px;
-    cursor: pointer;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-    z-index: 9999;
-    transition: background 0.2s ease;
-  }
-
-  #floatingLoginsBtn:hover {
-    background-color: #0a375e;
-  }
-
-  #floatingLoginsBtn::after {
-    content: "\1F4D1"; /* ícone Unicode (ícone de documento) */
-    display: inline-block;
-    font-size: 24px;
-  }
-</style>
-
-</style>
-
-</style>
+  </style>
 </head>
 <body>
   <!-- LOGIN PAGE -->
@@ -613,7 +555,6 @@
         <button class="nav-link" id="nav-pagamentos">Pagamentos</button>
         <button class="nav-link" id="nav-entregas">Entregas</button>
         <button class="nav-link" id="nav-estoque">Stock</button>
-<button class="nav-link" id="nav-logins" style="display:none;">Histórico de Logins</button>
         <button class="sidebar-logout" onclick="logout()">Sair</button>
       </nav>
     </div>
@@ -1172,86 +1113,5 @@
     };
     renderDashboard();
   </script>
-
-<!-- === INÍCIO: Histórico de Login === -->
-<script>
-function saveLoginHistory(username) {
-  const history = JSON.parse(localStorage.getItem("azulor_logins") || "[]");
-  const now = new Date();
-  history.push({ username, datetime: now.toLocaleString() });
-  localStorage.setItem("azulor_logins", JSON.stringify(history));
-}
-
-function getLoginHistory() {
-  return JSON.parse(localStorage.getItem("azulor_logins") || "[]");
-}
-
-document.getElementById('loginForm').onsubmit = function(e) {
-  e.preventDefault();
-  const user = document.getElementById('loginUser').value.trim();
-  const pass = document.getElementById('loginPass').value;
-  if (checkLogin(user, pass)) {
-    saveLoginHistory(user);
-    sessionStorage.setItem('azulor_loggedin', '1');
-    sessionStorage.setItem('azulor_user', user);
-    if (user === 'admin') {
-      document.getElementById('nav-logins').style.display = '';
-  document.getElementById('floatingLoginsBtn').style.display = 'block';
-    }
-    showAppAfterLogin();
-  } else {
-    document.getElementById('loginError').innerText = 'Usuário ou senha inválidos!';
-    document.getElementById('loginError').style.display = '';
-  }
-};
-
-if (sessionStorage.getItem('azulor_loggedin') === '1') {
-  const user = sessionStorage.getItem('azulor_user');
-  if (user === 'admin') {
-    document.getElementById('nav-logins').style.display = '';
-  document.getElementById('floatingLoginsBtn').style.display = 'block';
-  }
-  document.getElementById('loginBg').style.display = 'none';
-  document.getElementById('mainApp').style.display = '';
-}
-
-function renderLoginHistory() {
-  setTitle("Histórico de Logins");
-  const history = getLoginHistory();
-  const main = document.getElementById('main-content');
-  main.innerHTML = \`
-    <div class="az-table-wrap" style="margin-top:0;">
-      <table class="az-table">
-        <thead>
-          <tr>
-            <th>Usuário</th>
-            <th>Data/Hora</th>
-          </tr>
-        </thead>
-        <tbody>
-          \${history.map(h => \`
-            <tr>
-              <td>\${h.username}</td>
-              <td>\${h.datetime}</td>
-            </tr>
-          \`).join("") || '<tr><td colspan="2" style="text-align:center;">Sem registros.</td></tr>'}
-        </tbody>
-      </table>
-    </div>
-  \`;
-}
-
-document.getElementById('nav-logins').onclick = (e)=>{
-  e.preventDefault();
-  setActiveNav('nav-logins');
-  currentPage = 'logins';
-  renderLoginHistory();
-};
-</script>
-<!-- === FIM: Histórico de Login === -->
-
-
-<button id="floatingLoginsBtn" onclick="renderLoginHistory()"></button>
-
 </body>
 </html>
