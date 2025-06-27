@@ -459,57 +459,6 @@
         padding: 22px 10vw 22px 10vw;
       }
     }
-    /* Stock styles */
-    .stock-edit-btn {
-      background: #f8b400;
-      color: #fff;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      padding: 0.35em 0.9em;
-      font-size: 0.97em;
-      margin-left: 0.5em;
-      cursor: pointer;
-      transition: background 0.13s;
-    }
-    .stock-edit-btn:hover {
-      background: #b68900;
-    }
-    .stock-save-btn {
-      background: #388e3c;
-      color: #fff;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      padding: 0.35em 0.9em;
-      font-size: 0.97em;
-      margin-left: 0.5em;
-      cursor: pointer;
-      transition: background 0.13s;
-    }
-    .stock-save-btn:hover {
-      background: #236623;
-    }
-    .stock-cancel-btn {
-      background: #d21f3c;
-      color: #fff;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      padding: 0.35em 0.9em;
-      font-size: 0.97em;
-      margin-left: 0.5em;
-      cursor: pointer;
-      transition: background 0.13s;
-    }
-    .stock-cancel-btn:hover {
-      background: #9e172c;
-    }
-    /* Centralize only the Preço Unitário (€) column in the estoque table */
-    .az-table th:nth-child(3),
-    .az-table td:nth-child(3) {
-      text-align: center;
-    }
   </style>
 </head>
 <body>
@@ -640,22 +589,19 @@
       let users = getUsers();
       return users.some(u => u.username === username && u.password === password);
     }
-    // --- HISTÓRICO DE LOGIN ---
+
+    // --- LOGIN HISTORY ---
     function saveLoginHistory(username) {
       let history = [];
       try { history = JSON.parse(localStorage.getItem('azulor_login_history') || "[]"); } catch(e){}
       if (!Array.isArray(history)) history = [];
-      const now = new Date();
-      const datetime = now.toLocaleString('pt-PT');
-      history.push({ username, datetime });
+      history.push({
+        username: username,
+        datetime: new Date().toISOString()
+      });
       localStorage.setItem('azulor_login_history', JSON.stringify(history));
     }
-    function getLoginHistory() {
-      let history = [];
-      try { history = JSON.parse(localStorage.getItem('azulor_login_history') || "[]"); } catch(e){}
-      if (!Array.isArray(history)) history = [];
-      return history;
-    }
+
     // --- LOGIN/REGISTER UI ---
     function showLoginForm() {
       document.getElementById('loginForm').style.display = '';
@@ -691,7 +637,7 @@
       const pass = document.getElementById('loginPass').value;
       if (checkLogin(user, pass)) {
         sessionStorage.setItem('azulor_loggedin', '1');
-        saveLoginHistory(user); // salva login
+        saveLoginHistory(user); // <--- HISTÓRICO DE LOGIN AQUI
         showAppAfterLogin();
       } else {
         document.getElementById('loginError').innerText = 'Usuário ou senha inválidos!';
@@ -782,40 +728,351 @@
         <div class="dashboard-info">
           Selecione uma opção no menu à esquerda para começar.
         </div>
-        <div style="margin-top:40px;">
-          <button id="showLoginHistoryBtn" style="background:#0a375e;color:#fff;font-weight:700;padding:0.65em 1.8em;border-radius:9px;border:none;cursor:pointer;box-shadow:0 1px 8px rgba(4,36,61,0.06);">Ver Histórico de Login</button>
-          <div id="loginHistoryBox" style="margin-top:22px;display:none;"></div>
+      `;
+    }
+    function renderPedidos() {
+      setTitle('Pedidos');
+      const main = document.getElementById('main-content');
+      main.innerHTML = `
+        <div class="az-table-wrap" style="margin-top:0;">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:18px;">
+            <button id="btnNovoPedido" style="background: #04243d;color: #fff;padding: 0.67em 1.5em;font-size: 1rem;font-weight: 600;border: none;border-radius: 7px;box-shadow: 0 1px 8px rgba(4,36,61,0.06);cursor: pointer;">
+              + Novo Pedido
+            </button>
+          </div>
+          <table class="az-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Email</th>
+                <th>Data</th>
+                <th>Quantidade</th>
+                <th>Valor (€)</th>
+                <th>Descrição</th>
+                <th>Local Carga</th>
+                <th>Local Descarga</th>
+              </tr>
+            </thead>
+            <tbody id="pedidosTableBody"></tbody>
+          </table>
         </div>
       `;
-      document.getElementById('showLoginHistoryBtn').onclick = function() {
-        const box = document.getElementById('loginHistoryBox');
-        const history = getLoginHistory();
-        if (!Array.isArray(history) || history.length === 0) {
-          box.innerHTML = `<div style="color:#777;font-size:1.07em;">Nenhum login registrado até agora.</div>`;
-        } else {
-          box.innerHTML = `
-            <table style="width:100%;background:#fff;border-radius:13px;box-shadow:0 2px 8px rgba(4,36,61,0.06);border-collapse:collapse;">
-              <thead>
-                <tr>
-                  <th style="padding:1em 0.8em;text-align:left;color:#0a375e;font-size:1em;">Usuário</th>
-                  <th style="padding:1em 0.8em;text-align:left;color:#0a375e;font-size:1em;">Data/Hora</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${history.slice().reverse().map(h => `
-                  <tr>
-                    <td style="padding:0.8em 0.8em;">${h.username}</td>
-                    <td style="padding:0.8em 0.8em;">${h.datetime}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          `;
-        }
-        box.style.display = '';
-      };
+      document.getElementById('btnNovoPedido').onclick = openPedidoModal;
+      renderPedidosTable();
     }
-    // ... (restante do JS igual ao teu original, não removi nada)
+    function renderPedidosTable() {
+      document.getElementById('pedidosTableBody').innerHTML = db.pedidos.length === 0
+        ? `<tr><td colspan="9" style="text-align:center;color:#888;padding:2em;">Nenhum pedido cadastrado.</td></tr>`
+        : db.pedidos.map(p => `
+            <tr>
+              <td style="text-align:center;">${p.id}</td>
+              <td>${p.cliente}</td>
+              <td>${p.email || ''}</td>
+              <td>${p.data}</td>
+              <td style="text-align:center;">${p.quantidade || 1}</td>
+              <td style="text-align:right;">${Number(p.valor).toFixed(2)}</td>
+              <td>${p.detalhes ? p.detalhes.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}</td>
+              <td>${p.local_carga || ""}</td>
+              <td>${p.local_descarga || ""}</td>
+            </tr>
+          `).join('');
+    }
+    function renderPagamentos() {
+      setTitle('Pagamentos');
+      const main = document.getElementById('main-content');
+      main.innerHTML = `
+        <div class="az-table-wrap">
+          <table class="az-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Quantidade</th>
+                <th>Valor (€)</th>
+                <th>Data</th>
+                <th>Status</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${db.pagamentos.map((pg, idx) => `
+                <tr>
+                  <td>${pg.id}</td>
+                  <td>${pg.cliente}</td>
+                  <td style="text-align:center;">${getQuantidadeByPedidoId(pg.id)}</td>
+                  <td style="text-align:right;">${pg.valor.toFixed(2)}</td>
+                  <td>${pg.data}</td>
+                  <td>
+                    <span class="badge ${pg.status==='Pago'?'pago':'pendente'}">
+                      ${pg.status}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="status-btn" onclick="togglePagamentoStatus(${idx})">
+                      ${pg.status === "Pago" ? "Marcar Pendente" : "Marcar Pago"}
+                    </button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+    function getQuantidadeByPedidoId(pid) {
+      const pedido = db.pedidos.find(p => p.id === pid);
+      return pedido ? (pedido.quantidade || 1) : '';
+    }
+    function addEntregaFromPagamento(pg) {
+      if (!db.entregas.some(e => e.id === pg.id)) {
+        const pedido = db.pedidos.find(p => p.id === pg.id);
+        db.entregas.push({
+          id: pg.id,
+          cliente: pg.cliente,
+          valor: pg.valor,
+          data: pg.data,
+          quantidade: pedido ? pedido.quantidade : 1,
+          status: "Não Entregue",
+          local_carga: pedido ? pedido.local_carga : "",
+          local_descarga: pedido ? pedido.local_descarga : ""
+        });
+        saveDB();
+      }
+    }
+    function removeEntregaByPagamentoId(pid) {
+      const idx = db.entregas.findIndex(e => e.id === pid);
+      if (idx !== -1) {
+        db.entregas.splice(idx, 1);
+        saveDB();
+      }
+    }
+    function renderEntregas() {
+      setTitle('Entregas');
+      const main = document.getElementById('main-content');
+      main.innerHTML = `
+        <div class="az-table-wrap">
+          <table class="az-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Quantidade</th>
+                <th>Valor (€)</th>
+                <th>Local Carga</th>
+                <th>Local Descarga</th>
+                <th>Data</th>
+                <th>Status</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${db.entregas.map((en, idx) => `
+                <tr>
+                  <td>${en.id}</td>
+                  <td>${en.cliente}</td>
+                  <td style="text-align:center;">${getQuantidadeByPedidoId(en.id)}</td>
+                  <td style="text-align:right;">${en.valor.toFixed(2)}</td>
+                  <td>${en.local_carga || ''}</td>
+                  <td>${en.local_descarga || ''}</td>
+                  <td>${en.data}</td>
+                  <td>
+                    <span class="badge ${en.status==='Entregue'?'entregue':'naoentregue'}">
+                      ${en.status === "Entregue" ? "Entregue" : "Não Entregue"}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="status-btn" onclick="toggleEntregaStatus(${idx})">
+                      ${en.status === "Entregue" ? "Marcar Não Entregue" : "Marcar Entregue"}
+                    </button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // ---------- ESTOQUE -----------
+    function renderEstoque() {
+      setTitle('Stock');
+      const main = document.getElementById('main-content');
+      main.innerHTML = `
+        <div class="az-table-wrap">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:18px;">
+            <button id="btnNovoProdutoEstoque" style="background: #04243d;color: #fff;padding: 0.67em 1.5em;font-size: 1rem;font-weight: 600;border: none;border-radius: 7px;box-shadow: 0 1px 8px rgba(4,36,61,0.06);cursor: pointer;">
+              + Novo Produto
+            </button>
+          </div>
+          <table class="az-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Quantidade</th>
+                <th>Preço Unitário (€)</th>
+                <th>Descrição</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="estoqueTableBody"></tbody>
+          </table>
+        </div>
+      `;
+      document.getElementById('btnNovoProdutoEstoque').onclick = ()=>openEstoqueModal(null);
+      renderEstoqueTable();
+    }
+    function renderEstoqueTable() {
+      const tbody = document.getElementById('estoqueTableBody');
+      tbody.innerHTML = db.estoque.length === 0
+        ? `<tr><td colspan="5" style="text-align:center;color:#888;padding:2em;">Nenhum produto no stock.</td></tr>`
+        : db.estoque.map((p, idx) => `
+          <tr>
+            <td>${p.nome}</td>
+            <td style="text-align:center;">${p.quantidade}</td>
+            <td style="text-align:center;">${Number(p.preco).toFixed(2)}</td>
+            <td>${p.descricao ? p.descricao.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}</td>
+            <td>
+              <button class="status-btn" style="background:#f8b400;" onclick="openEstoqueModal(${idx})">Editar</button>
+              <button class="status-btn" style="background:#d21f3c;" onclick="removerProdutoEstoque(${idx})">Eliminar</button>
+            </td>
+          </tr>
+        `).join('');
+    }
+    window.openEstoqueModal = function(idx) {
+      document.getElementById('estoqueModalBg').style.display = 'flex';
+      document.getElementById('estoqueForm').reset();
+      document.getElementById('estoqueEditIdx').value = idx != null ? idx : '';
+      if (idx != null && db.estoque[idx]) {
+        document.getElementById('estoqueModalTitle').innerText = 'Editar Produto';
+        document.getElementById('estoqueNome').value = db.estoque[idx].nome;
+        document.getElementById('estoqueQtd').value = db.estoque[idx].quantidade;
+        document.getElementById('estoquePreco').value = db.estoque[idx].preco;
+        document.getElementById('estoqueDesc').value = db.estoque[idx].descricao || '';
+      } else {
+        document.getElementById('estoqueModalTitle').innerText = 'Novo Produto';
+      }
+    }
+    function closeEstoqueModal() {
+      document.getElementById('estoqueModalBg').style.display = 'none';
+    }
+    window.removerProdutoEstoque = function(idx) {
+      if (confirm('Tem certeza que deseja remover este produto do stock?')) {
+        db.estoque.splice(idx, 1);
+        saveDB();
+        renderEstoqueTable();
+        renderDashboard();
+      }
+    }
+    document.getElementById('estoqueForm').onsubmit = function(e) {
+      e.preventDefault();
+      const idx = document.getElementById('estoqueEditIdx').value;
+      const nome = document.getElementById('estoqueNome').value.trim();
+      const quantidade = Number(document.getElementById('estoqueQtd').value);
+      const preco = Number(document.getElementById('estoquePreco').value);
+      const descricao = document.getElementById('estoqueDesc').value.trim();
+      if (!nome || isNaN(quantidade) || isNaN(preco)) return;
+      if (idx !== '') {
+        // Editar
+        db.estoque[idx] = {nome, quantidade, preco, descricao};
+      } else {
+        // Novo
+        db.estoque.push({nome, quantidade, preco, descricao});
+      }
+      saveDB();
+      closeEstoqueModal();
+      renderEstoque();
+    };
+
+    // ---------- /ESTOQUE ----------
+
+    window.togglePagamentoStatus = function(idx) {
+      if (db.pagamentos[idx]) {
+        const pg = db.pagamentos[idx];
+        pg.status = pg.status === "Pago" ? "Pendente" : "Pago";
+        saveDB();
+        if (pg.status === "Pago") {
+          addEntregaFromPagamento(pg);
+        } else {
+          removeEntregaByPagamentoId(pg.id);
+        }
+        showCurrentPage();
+      }
+    };
+    window.toggleEntregaStatus = function(idx) {
+      if (db.entregas[idx]) {
+        db.entregas[idx].status = db.entregas[idx].status === "Entregue" ? "Não Entregue" : "Entregue";
+        saveDB();
+        showCurrentPage();
+      }
+    };
+    function openPedidoModal() {
+      document.getElementById('pedidoModalBg').style.display = 'flex';
+      document.getElementById('pedidoForm').reset();
+      document.getElementById('pedidoForm').dataEditing = null;
+    }
+    function closePedidoModal() {
+      document.getElementById('pedidoModalBg').style.display = 'none';
+    }
+    document.getElementById('pedidoForm').onsubmit = function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const nextPedidoId = (db.pedidos.at(-1)?.id || 100) + 1;
+      const novoPedido = {
+        id: nextPedidoId,
+        cliente: form.cliente.value,
+        email: form.email.value,
+        data: form.data.value,
+        quantidade: Number(form.quantidade.value),
+        valor: Number(form.valor.value),
+        detalhes: form.detalhes.value,
+        local_carga: form.local_carga.value,
+        local_descarga: form.local_descarga.value
+      };
+      db.pedidos.push(novoPedido);
+      saveDB();
+      db.pagamentos.push({
+        id: nextPedidoId,
+        cliente: novoPedido.cliente,
+        valor: novoPedido.valor,
+        data: novoPedido.data,
+        status: "Pendente"
+      });
+      saveDB();
+      closePedidoModal();
+      showCurrentPage();
+    };
+    document.getElementById('nav-dashboard').onclick = (e)=>{
+      e.preventDefault();
+      setActiveNav('nav-dashboard');
+      currentPage = 'dashboard';
+      renderDashboard();
+    };
+    document.getElementById('nav-pedidos').onclick = (e)=>{
+      e.preventDefault();
+      setActiveNav('nav-pedidos');
+      currentPage = 'pedidos';
+      renderPedidos();
+    };
+    document.getElementById('nav-pagamentos').onclick = (e)=>{
+      e.preventDefault();
+      setActiveNav('nav-pagamentos');
+      currentPage = 'pagamentos';
+      renderPagamentos();
+    };
+    document.getElementById('nav-entregas').onclick = (e)=>{
+      e.preventDefault();
+      setActiveNav('nav-entregas');
+      currentPage = 'entregas';
+      renderEntregas();
+    };
+    document.getElementById('nav-estoque').onclick = (e)=>{
+      e.preventDefault();
+      setActiveNav('nav-estoque');
+      currentPage = 'estoque';
+      renderEstoque();
+    };
+    renderDashboard();
   </script>
 </body>
 </html>
