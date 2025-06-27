@@ -6,6 +6,7 @@
   <title>Azulor Plataforma</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
+    /* ... [restante do CSS igual ao anterior] ... */
     :root {
       --azulor-main: #04243d;
       --azulor-secondary: #0a375e;
@@ -397,7 +398,8 @@
       margin-bottom: 0.4em;
     }
     .login-box input[type=text],
-    .login-box input[type=password] {
+    .login-box input[type=password],
+    .login-box input[type=email] {
       font-size: 1.07em;
       background: #f5f8fa;
       border: 1.5px solid #e1e8ed;
@@ -424,8 +426,23 @@
     .login-box button[type=submit]:hover {
       background: var(--azulor-hover);
     }
+    .login-box .login-register-link {
+      margin-top: 1.5em;
+      font-size: 1em;
+      color: #1e4a6e;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: underline;
+      transition: color 0.18s;
+    }
+    .login-box .login-register-link:hover { color: #0a375e; }
     .login-error {
       color: #d21f3c;
+      margin-top: 0.7em;
+      font-size: 1.04em;
+    }
+    .login-success {
+      color: #388e3c;
       margin-top: 0.7em;
       font-size: 1.04em;
     }
@@ -448,6 +465,7 @@
 <body>
   <!-- LOGIN PAGE -->
   <div id="loginBg" class="login-bg">
+    <!-- LOGIN FORM -->
     <form class="login-box" id="loginForm" autocomplete="off">
       <img src="logo_azulor.png" alt="Azulor">
       <div class="login-title">Login</div>
@@ -457,6 +475,22 @@
       <input type="password" name="pass" id="loginPass" autocomplete="current-password" required>
       <button type="submit">Entrar</button>
       <div id="loginError" class="login-error" style="display:none"></div>
+      <div class="login-register-link" id="showRegister">Registrar-se</div>
+    </form>
+    <!-- REGISTRATION FORM (hidden by default) -->
+    <form class="login-box" id="registerForm" autocomplete="off" style="display:none">
+      <img src="logo_azulor.png" alt="Azulor">
+      <div class="login-title">Registrar</div>
+      <label for="reguser">Usuário</label>
+      <input type="text" name="reguser" id="regUser" autocomplete="username" required maxlength="32">
+      <label for="regemail">Email</label>
+      <input type="email" name="regemail" id="regEmail" autocomplete="email" required maxlength="100">
+      <label for="regpass">Senha</label>
+      <input type="password" name="regpass" id="regPass" autocomplete="new-password" required minlength="3" maxlength="32">
+      <button type="submit">Criar Conta</button>
+      <div id="registerError" class="login-error" style="display:none"></div>
+      <div id="registerSuccess" class="login-success" style="display:none"></div>
+      <div class="login-register-link" id="showLogin">Já tem conta? Entrar</div>
     </form>
   </div>
   <!-- RESTANTE DA APP -->
@@ -509,7 +543,46 @@
     </div>
   </div>
   <script>
-    // LOGIN LOGIC
+    // --- USUÁRIOS REGISTRADOS (localStorage) ---
+    function getUsers() {
+      let u = [];
+      try { u = JSON.parse(localStorage.getItem('azulor_users') || "[]"); } catch(e){}
+      if (!Array.isArray(u)) u = [];
+      return u;
+    }
+    function saveUsers(users) {
+      localStorage.setItem('azulor_users', JSON.stringify(users));
+    }
+    function registerUser(username, email, password) {
+      let users = getUsers();
+      // username or email already exists?
+      if (users.some(u => u.username === username)) return "Usuário já existe!";
+      if (users.some(u => u.email === email)) return "Email já registrado!";
+      users.push({username, email, password});
+      saveUsers(users);
+      return true;
+    }
+    function checkLogin(username, password) {
+      if (username === 'admin' && password === 'admin') return true;
+      let users = getUsers();
+      return users.some(u => u.username === username && u.password === password);
+    }
+
+    // --- LOGIN/REGISTER UI ---
+    function showLoginForm() {
+      document.getElementById('loginForm').style.display = '';
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('loginError').style.display = 'none';
+    }
+    function showRegisterForm() {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = '';
+      document.getElementById('registerError').style.display = 'none';
+      document.getElementById('registerSuccess').style.display = 'none';
+    }
+    document.getElementById('showRegister').onclick = showRegisterForm;
+    document.getElementById('showLogin').onclick = showLoginForm;
+
     function showAppAfterLogin() {
       document.getElementById('loginBg').style.display = 'none';
       document.getElementById('mainApp').style.display = '';
@@ -518,16 +591,19 @@
       sessionStorage.removeItem('azulor_loggedin');
       location.reload();
     }
+
     // Check login on load
     if (sessionStorage.getItem('azulor_loggedin') === '1') {
       document.getElementById('loginBg').style.display = 'none';
       document.getElementById('mainApp').style.display = '';
     }
+
+    // LOGIN
     document.getElementById('loginForm').onsubmit = function(e) {
       e.preventDefault();
       const user = document.getElementById('loginUser').value.trim();
       const pass = document.getElementById('loginPass').value;
-      if (user === 'admin' && pass === 'admin') {
+      if (checkLogin(user, pass)) {
         sessionStorage.setItem('azulor_loggedin', '1');
         showAppAfterLogin();
       } else {
@@ -535,8 +611,31 @@
         document.getElementById('loginError').style.display = '';
       }
     };
+    // REGISTRO
+    document.getElementById('registerForm').onsubmit = function(e) {
+      e.preventDefault();
+      const user = document.getElementById('regUser').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const pass = document.getElementById('regPass').value;
+      document.getElementById('registerError').style.display = 'none';
+      document.getElementById('registerSuccess').style.display = 'none';
+      if (!user || !email || !pass) {
+        document.getElementById('registerError').innerText = 'Preencha todos os campos!';
+        document.getElementById('registerError').style.display = '';
+        return;
+      }
+      const res = registerUser(user, email, pass);
+      if (res === true) {
+        document.getElementById('registerSuccess').innerText = 'Usuário registrado com sucesso! Você pode fazer login.';
+        document.getElementById('registerSuccess').style.display = '';
+        setTimeout(showLoginForm, 1300);
+      } else {
+        document.getElementById('registerError').innerText = res;
+        document.getElementById('registerError').style.display = '';
+      }
+    };
 
-    // Persistent DB: load from localStorage or start empty
+    // --- RESTANTE DA APP ---
     let db = {
       pedidos: [],
       pagamentos: [],
@@ -688,7 +787,6 @@
       `;
     }
 
-    // Busca quantidade do pedido pelo id (para mostrar em pagamentos/entregas)
     function getQuantidadeByPedidoId(pid) {
       const pedido = db.pedidos.find(p => p.id === pid);
       return pedido ? (pedido.quantidade || 1) : '';
@@ -760,7 +858,6 @@
       `;
     }
 
-    // Troca status pagamento e sincroniza entregas
     window.togglePagamentoStatus = function(idx) {
       if (db.pagamentos[idx]) {
         const pg = db.pagamentos[idx];
@@ -775,7 +872,6 @@
       }
     };
 
-    // Troca status entrega
     window.toggleEntregaStatus = function(idx) {
       if (db.entregas[idx]) {
         db.entregas[idx].status = db.entregas[idx].status === "Entregue" ? "Não Entregue" : "Entregue";
@@ -784,7 +880,6 @@
       }
     };
 
-    // Pedido Modal logic
     function openPedidoModal() {
       document.getElementById('pedidoModalBg').style.display = 'flex';
       document.getElementById('pedidoForm').reset();
@@ -809,7 +904,6 @@
       db.pedidos.push(novoPedido);
       saveDB();
 
-      // Adiciona em pagamentos automaticamente, status "Pendente"
       db.pagamentos.push({
         id: nextPedidoId,
         cliente: novoPedido.cliente,
@@ -823,7 +917,6 @@
       showCurrentPage();
     };
 
-    // Navigation events
     document.getElementById('nav-dashboard').onclick = (e)=>{
       e.preventDefault();
       setActiveNav('nav-dashboard');
@@ -849,7 +942,6 @@
       renderEntregas();
     };
 
-    // Initial page
     renderDashboard();
   </script>
 </body>
