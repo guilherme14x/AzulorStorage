@@ -228,7 +228,6 @@
       color: var(--azulor-main);
       margin-top: 0;
       letter-spacing: 1.2px;
-      text-align: center;
     }
     .dashboard-info {
       text-align: center;
@@ -254,7 +253,7 @@
     }
     .az-table th, .az-table td {
       padding: 1.1em 0.8em;
-      text-align: center !important;
+      text-align: left;
       font-size: 1.08rem;
     }
     .az-table th {
@@ -454,20 +453,57 @@
       letter-spacing: 1px;
       text-align: center;
     }
-    /* STOCK styles: center numbers */
-    .az-table .stock-number {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.15em;
-      font-weight: 600;
-    }
     @media (max-width:500px){
       .login-box {
         min-width: 0;
         padding: 22px 10vw 22px 10vw;
       }
+    }
+    /* Stock styles */
+    .stock-edit-btn {
+      background: #f8b400;
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 0.35em 0.9em;
+      font-size: 0.97em;
+      margin-left: 0.5em;
+      cursor: pointer;
+      transition: background 0.13s;
+    }
+    .stock-edit-btn:hover {
+      background: #b68900;
+    }
+    .stock-save-btn {
+      background: #388e3c;
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 0.35em 0.9em;
+      font-size: 0.97em;
+      margin-left: 0.5em;
+      cursor: pointer;
+      transition: background 0.13s;
+    }
+    .stock-save-btn:hover {
+      background: #236623;
+    }
+    .stock-cancel-btn {
+      background: #d21f3c;
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 0.35em 0.9em;
+      font-size: 0.97em;
+      margin-left: 0.5em;
+      cursor: pointer;
+      transition: background 0.13s;
+    }
+    .stock-cancel-btn:hover {
+      background: #9e172c;
     }
   </style>
 </head>
@@ -513,8 +549,7 @@
         <button class="nav-link" id="nav-pedidos">Pedidos</button>
         <button class="nav-link" id="nav-pagamentos">Pagamentos</button>
         <button class="nav-link" id="nav-entregas">Entregas</button>
-        <!-- STOCK NAV BUTTON -->
-        <button class="nav-link" id="nav-estoque">Stock</button>
+        <button class="nav-link" id="nav-estoque">Estoque</button>
         <button class="sidebar-logout" onclick="logout()">Sair</button>
       </nav>
     </div>
@@ -557,21 +592,22 @@
       </form>
     </div>
   </div>
-  <!-- STOCK MODAL -->
-  <div id="estoqueModalBg" class="modal-bg" style="z-index:10000">
+  <!-- Modal de edição de estoque -->
+  <div id="estoqueModalBg" class="modal-bg" style="z-index:10001">
     <div class="modal">
       <button onclick="closeEstoqueModal()" class="close-btn">&times;</button>
-      <h2>Novo Item de Stock</h2>
+      <h2 id="estoqueModalTitle">Editar Produto</h2>
       <form id="estoqueForm" autocomplete="off">
+        <input type="hidden" name="editIdx" id="estoqueEditIdx">
         <label>Nome do Produto</label>
-        <input name="nome" required maxlength="60">
-        <label>Descrição</label>
-        <input name="descricao" maxlength="120">
+        <input name="nome" id="estoqueNome" required maxlength="80">
         <label>Quantidade</label>
-        <input name="quantidade" type="number" min="0" step="1" required>
-        <label>Valor Unitário (€)</label>
-        <input name="valor" type="number" min="0" step="0.01" required>
-        <button type="submit">Adicionar ao Stock</button>
+        <input name="quantidade" id="estoqueQtd" type="number" min="0" step="1" required>
+        <label>Preço Unitário (€)</label>
+        <input name="preco" id="estoquePreco" type="number" min="0" step="0.01" required>
+        <label>Descrição</label>
+        <textarea name="descricao" id="estoqueDesc" maxlength="150"></textarea>
+        <button type="submit">Salvar</button>
       </form>
     </div>
   </div>
@@ -718,7 +754,7 @@
             <div class="card-value">${db.entregas.length}</div>
           </div>
           <div class="dashboard-card">
-            <div class="card-label">Stock</div>
+            <div class="card-label">Produtos em Estoque</div>
             <div class="card-value">${db.estoque.length}</div>
           </div>
         </div>
@@ -891,70 +927,98 @@
       `;
     }
 
-    // --- STOCK ---
+    // ---------- ESTOQUE -----------
     function renderEstoque() {
-      setTitle('Stock');
+      setTitle('Estoque');
       const main = document.getElementById('main-content');
       main.innerHTML = `
         <div class="az-table-wrap">
-          <div class="stock-table-actions">
-            <button id="btnNovoEstoque" style="background: #04243d;color: #fff;padding: 0.67em 1.5em;font-size: 1rem;font-weight: 600;border: none;border-radius: 7px;box-shadow: 0 1px 8px rgba(4,36,61,0.06);cursor: pointer;">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:18px;">
+            <button id="btnNovoProdutoEstoque" style="background: #04243d;color: #fff;padding: 0.67em 1.5em;font-size: 1rem;font-weight: 600;border: none;border-radius: 7px;box-shadow: 0 1px 8px rgba(4,36,61,0.06);cursor: pointer;">
               + Novo Produto
             </button>
           </div>
           <table class="az-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Produto</th>
-                <th>Descrição</th>
+                <th>Nome</th>
                 <th>Quantidade</th>
-                <th>Valor Unitário (€)</th>
-                <th>Valor Total (€)</th>
+                <th>Preço Unitário (€)</th>
+                <th>Descrição</th>
+                <th>Ações</th>
               </tr>
             </thead>
-            <tbody id="estoqueTableBody">
-              ${db.estoque.length === 0
-                ? `<tr><td colspan="6" style="text-align:center;color:#888;padding:2em;">Nenhum item de stock cadastrado.</td></tr>`
-                : db.estoque.map((item, idx) => `
-                  <tr>
-                    <td class="stock-number">${item.id}</td>
-                    <td>${item.nome}</td>
-                    <td>${item.descricao || ''}</td>
-                    <td class="stock-number">${item.quantidade}</td>
-                    <td class="stock-number"></td>
-                    <td class="stock-number"></td>
-                  </tr>
-                `).join('')}
-            </tbody>
+            <tbody id="estoqueTableBody"></tbody>
           </table>
         </div>
       `;
-      document.getElementById('btnNovoEstoque').onclick = openEstoqueModal;
+      document.getElementById('btnNovoProdutoEstoque').onclick = ()=>openEstoqueModal(null);
+      renderEstoqueTable();
     }
-    function openEstoqueModal() {
+    function renderEstoqueTable() {
+      const tbody = document.getElementById('estoqueTableBody');
+      tbody.innerHTML = db.estoque.length === 0
+        ? `<tr><td colspan="5" style="text-align:center;color:#888;padding:2em;">Nenhum produto no estoque.</td></tr>`
+        : db.estoque.map((p, idx) => `
+          <tr>
+            <td>${p.nome}</td>
+            <td style="text-align:center;">${p.quantidade}</td>
+            <td style="text-align:right;">${Number(p.preco).toFixed(2)}</td>
+            <td>${p.descricao ? p.descricao.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}</td>
+            <td>
+              <button class="stock-edit-btn" onclick="openEstoqueModal(${idx})">Editar</button>
+              <button class="stock-cancel-btn" onclick="removerProdutoEstoque(${idx})">Excluir</button>
+            </td>
+          </tr>
+        `).join('');
+    }
+    window.openEstoqueModal = function(idx) {
       document.getElementById('estoqueModalBg').style.display = 'flex';
       document.getElementById('estoqueForm').reset();
+      document.getElementById('estoqueEditIdx').value = idx != null ? idx : '';
+      if (idx != null && db.estoque[idx]) {
+        document.getElementById('estoqueModalTitle').innerText = 'Editar Produto';
+        document.getElementById('estoqueNome').value = db.estoque[idx].nome;
+        document.getElementById('estoqueQtd').value = db.estoque[idx].quantidade;
+        document.getElementById('estoquePreco').value = db.estoque[idx].preco;
+        document.getElementById('estoqueDesc').value = db.estoque[idx].descricao || '';
+      } else {
+        document.getElementById('estoqueModalTitle').innerText = 'Novo Produto';
+      }
     }
     function closeEstoqueModal() {
       document.getElementById('estoqueModalBg').style.display = 'none';
     }
+    window.removerProdutoEstoque = function(idx) {
+      if (confirm('Tem certeza que deseja remover este produto do estoque?')) {
+        db.estoque.splice(idx, 1);
+        saveDB();
+        renderEstoqueTable();
+        renderDashboard();
+      }
+    }
     document.getElementById('estoqueForm').onsubmit = function(e) {
       e.preventDefault();
-      const form = e.target;
-      const nextEstoqueId = (db.estoque.at(-1)?.id || 200) + 1;
-      const novoItem = {
-        id: nextEstoqueId,
-        nome: form.nome.value,
-        descricao: form.descricao.value,
-        quantidade: Number(form.quantidade.value),
-        valor: Number(form.valor.value)
-      };
-      db.estoque.push(novoItem);
+      const idx = document.getElementById('estoqueEditIdx').value;
+      const nome = document.getElementById('estoqueNome').value.trim();
+      const quantidade = Number(document.getElementById('estoqueQtd').value);
+      const preco = Number(document.getElementById('estoquePreco').value);
+      const descricao = document.getElementById('estoqueDesc').value.trim();
+      if (!nome || isNaN(quantidade) || isNaN(preco)) return;
+      if (idx !== '') {
+        // Editar
+        db.estoque[idx] = {nome, quantidade, preco, descricao};
+      } else {
+        // Novo
+        db.estoque.push({nome, quantidade, preco, descricao});
+      }
       saveDB();
       closeEstoqueModal();
-      renderEstoque();
+      renderEstoqueTable();
+      renderDashboard();
     };
+
+    // ---------- /ESTOQUE ----------
 
     window.togglePagamentoStatus = function(idx) {
       if (db.pagamentos[idx]) {
