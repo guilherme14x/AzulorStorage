@@ -6,7 +6,6 @@
   <title>Azulor Plataforma</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    /* ... [restante do CSS igual ao anterior] ... */
     :root {
       --azulor-main: #04243d;
       --azulor-secondary: #0a375e;
@@ -538,6 +537,10 @@
         <input name="valor" type="number" min="0" step="0.01" required>
         <label>Descrição / Detalhes</label>
         <textarea name="detalhes" required placeholder="Descreva o pedido"></textarea>
+        <label>Local Carga</label>
+        <input name="local_carga" maxlength="80" required placeholder="Ex: Porto">
+        <label>Local Descarga</label>
+        <input name="local_descarga" maxlength="80" required placeholder="Ex: Lisboa">
         <button type="submit">Adicionar Pedido</button>
       </form>
     </div>
@@ -555,7 +558,6 @@
     }
     function registerUser(username, email, password) {
       let users = getUsers();
-      // username or email already exists?
       if (users.some(u => u.username === username)) return "Usuário já existe!";
       if (users.some(u => u.email === email)) return "Email já registrado!";
       users.push({username, email, password});
@@ -592,13 +594,11 @@
       location.reload();
     }
 
-    // Check login on load
     if (sessionStorage.getItem('azulor_loggedin') === '1') {
       document.getElementById('loginBg').style.display = 'none';
       document.getElementById('mainApp').style.display = '';
     }
 
-    // LOGIN
     document.getElementById('loginForm').onsubmit = function(e) {
       e.preventDefault();
       const user = document.getElementById('loginUser').value.trim();
@@ -611,7 +611,6 @@
         document.getElementById('loginError').style.display = '';
       }
     };
-    // REGISTRO
     document.getElementById('registerForm').onsubmit = function(e) {
       e.preventDefault();
       const user = document.getElementById('regUser').value.trim();
@@ -652,7 +651,6 @@
       localStorage.setItem('azulor_db', JSON.stringify(db));
     }
 
-    // Track current page
     let currentPage = 'dashboard';
     function showCurrentPage() {
       switch(currentPage) {
@@ -662,8 +660,6 @@
         case 'entregas': renderEntregas(); break;
       }
     }
-
-    // Navigation state
     function setActiveNav(id) {
       document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
       document.getElementById(id).classList.add('active');
@@ -671,8 +667,6 @@
     function setTitle(text) {
       document.getElementById('topbar-title').textContent = text;
     }
-
-    // Dashboard
     function renderDashboard() {
       setTitle('Bem-vindo à Plataforma Azulor');
       const main = document.getElementById('main-content');
@@ -696,8 +690,6 @@
         </div>
       `;
     }
-
-    // Pedidos
     function renderPedidos() {
       setTitle('Pedidos');
       const main = document.getElementById('main-content');
@@ -718,6 +710,8 @@
                 <th>Quantidade</th>
                 <th>Valor (€)</th>
                 <th>Descrição</th>
+                <th>Local Carga</th>
+                <th>Local Descarga</th>
               </tr>
             </thead>
             <tbody id="pedidosTableBody"></tbody>
@@ -729,7 +723,7 @@
     }
     function renderPedidosTable() {
       document.getElementById('pedidosTableBody').innerHTML = db.pedidos.length === 0
-        ? `<tr><td colspan="7" style="text-align:center;color:#888;padding:2em;">Nenhum pedido cadastrado.</td></tr>`
+        ? `<tr><td colspan="9" style="text-align:center;color:#888;padding:2em;">Nenhum pedido cadastrado.</td></tr>`
         : db.pedidos.map(p => `
             <tr>
               <td style="text-align:center;">${p.id}</td>
@@ -739,11 +733,11 @@
               <td style="text-align:center;">${p.quantidade || 1}</td>
               <td style="text-align:right;">${Number(p.valor).toFixed(2)}</td>
               <td>${p.detalhes ? p.detalhes.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}</td>
+              <td>${p.local_carga || ""}</td>
+              <td>${p.local_descarga || ""}</td>
             </tr>
           `).join('');
     }
-
-    // Pagamentos
     function renderPagamentos() {
       setTitle('Pagamentos');
       const main = document.getElementById('main-content');
@@ -786,12 +780,10 @@
         </div>
       `;
     }
-
     function getQuantidadeByPedidoId(pid) {
       const pedido = db.pedidos.find(p => p.id === pid);
       return pedido ? (pedido.quantidade || 1) : '';
     }
-
     function addEntregaFromPagamento(pg) {
       if (!db.entregas.some(e => e.id === pg.id)) {
         const pedido = db.pedidos.find(p => p.id === pg.id);
@@ -801,7 +793,9 @@
           valor: pg.valor,
           data: pg.data,
           quantidade: pedido ? pedido.quantidade : 1,
-          status: "Não Entregue"
+          status: "Não Entregue",
+          local_carga: pedido ? pedido.local_carga : "",
+          local_descarga: pedido ? pedido.local_descarga : ""
         });
         saveDB();
       }
@@ -813,8 +807,6 @@
         saveDB();
       }
     }
-
-    // Entregas
     function renderEntregas() {
       setTitle('Entregas');
       const main = document.getElementById('main-content');
@@ -827,6 +819,8 @@
                 <th>Cliente</th>
                 <th>Quantidade</th>
                 <th>Valor (€)</th>
+                <th>Local Carga</th>
+                <th>Local Descarga</th>
                 <th>Data</th>
                 <th>Status</th>
                 <th>Ação</th>
@@ -839,6 +833,8 @@
                   <td>${en.cliente}</td>
                   <td style="text-align:center;">${getQuantidadeByPedidoId(en.id)}</td>
                   <td style="text-align:right;">${en.valor.toFixed(2)}</td>
+                  <td>${en.local_carga || ''}</td>
+                  <td>${en.local_descarga || ''}</td>
                   <td>${en.data}</td>
                   <td>
                     <span class="badge ${en.status==='Entregue'?'entregue':'naoentregue'}">
@@ -857,7 +853,6 @@
         </div>
       `;
     }
-
     window.togglePagamentoStatus = function(idx) {
       if (db.pagamentos[idx]) {
         const pg = db.pagamentos[idx];
@@ -871,7 +866,6 @@
         showCurrentPage();
       }
     };
-
     window.toggleEntregaStatus = function(idx) {
       if (db.entregas[idx]) {
         db.entregas[idx].status = db.entregas[idx].status === "Entregue" ? "Não Entregue" : "Entregue";
@@ -879,7 +873,6 @@
         showCurrentPage();
       }
     };
-
     function openPedidoModal() {
       document.getElementById('pedidoModalBg').style.display = 'flex';
       document.getElementById('pedidoForm').reset();
@@ -899,11 +892,12 @@
         data: form.data.value,
         quantidade: Number(form.quantidade.value),
         valor: Number(form.valor.value),
-        detalhes: form.detalhes.value
+        detalhes: form.detalhes.value,
+        local_carga: form.local_carga.value,
+        local_descarga: form.local_descarga.value
       };
       db.pedidos.push(novoPedido);
       saveDB();
-
       db.pagamentos.push({
         id: nextPedidoId,
         cliente: novoPedido.cliente,
@@ -912,11 +906,9 @@
         status: "Pendente"
       });
       saveDB();
-
       closePedidoModal();
       showCurrentPage();
     };
-
     document.getElementById('nav-dashboard').onclick = (e)=>{
       e.preventDefault();
       setActiveNav('nav-dashboard');
@@ -941,7 +933,6 @@
       currentPage = 'entregas';
       renderEntregas();
     };
-
     renderDashboard();
   </script>
 </body>
