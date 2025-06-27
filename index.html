@@ -6,7 +6,6 @@
   <title>Azulor Plataforma</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    /* [CSS unchanged, same as before] */
     :root {
       --azulor-main: #04243d;
       --azulor-secondary: #0a375e;
@@ -399,6 +398,8 @@
       <form id="pedidoForm" autocomplete="off">
         <label>Nome do Cliente</label>
         <input name="cliente" required maxlength="50">
+        <label>Email</label>
+        <input name="email" type="email" required maxlength="100">
         <label>Data</label>
         <input name="data" type="date" required>
         <label>Quantidade</label>
@@ -490,6 +491,7 @@
               <tr>
                 <th>ID</th>
                 <th>Cliente</th>
+                <th>Email</th>
                 <th>Data</th>
                 <th>Quantidade</th>
                 <th>Valor (€)</th>
@@ -505,11 +507,12 @@
     }
     function renderPedidosTable() {
       document.getElementById('pedidosTableBody').innerHTML = db.pedidos.length === 0
-        ? `<tr><td colspan="6" style="text-align:center;color:#888;padding:2em;">Nenhum pedido cadastrado.</td></tr>`
+        ? `<tr><td colspan="7" style="text-align:center;color:#888;padding:2em;">Nenhum pedido cadastrado.</td></tr>`
         : db.pedidos.map(p => `
             <tr>
               <td style="text-align:center;">${p.id}</td>
               <td>${p.cliente}</td>
+              <td>${p.email || ''}</td>
               <td>${p.data}</td>
               <td style="text-align:center;">${p.quantidade || 1}</td>
               <td style="text-align:right;">${Number(p.valor).toFixed(2)}</td>
@@ -570,12 +573,13 @@
 
     function addEntregaFromPagamento(pg) {
       if (!db.entregas.some(e => e.id === pg.id)) {
+        const pedido = db.pedidos.find(p => p.id === pg.id);
         db.entregas.push({
           id: pg.id,
           cliente: pg.cliente,
           valor: pg.valor,
           data: pg.data,
-          quantidade: getQuantidadeByPedidoId(pg.id),
+          quantidade: pedido ? pedido.quantidade : 1,
           status: "Não Entregue"
         });
         saveDB();
@@ -673,6 +677,7 @@
       const novoPedido = {
         id: nextPedidoId,
         cliente: form.cliente.value,
+        email: form.email.value,
         data: form.data.value,
         quantidade: Number(form.quantidade.value),
         valor: Number(form.valor.value),
@@ -692,7 +697,7 @@
       saveDB();
 
       closePedidoModal();
-      showCurrentPage(); // stays on current section!
+      showCurrentPage();
     };
 
     // Navigation events
