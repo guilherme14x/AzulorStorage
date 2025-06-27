@@ -258,7 +258,7 @@
       font-size: 1.04rem;
       background: #fff;
     }
-    .conclusion-btn {
+    .status-btn {
       background: #1e90ff;
       color: #fff;
       font-weight: 700;
@@ -267,10 +267,10 @@
       padding: 0.4em 1em;
       font-size: 1em;
       cursor: pointer;
-      margin-left: 0.8em;
+      margin-left: 0.6em;
       transition: background 0.15s;
     }
-    .conclusion-btn:hover {
+    .status-btn:hover {
       background: #146cb2;
     }
     .badge {
@@ -346,42 +346,6 @@
       border-radius:7px;
       cursor:pointer;
     }
-    .conclusion-page {
-      max-width: 480px;
-      margin: 60px auto;
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 6px 32px rgba(4,36,61,0.11);
-      padding: 44px 26px 38px 26px;
-      text-align: center;
-      color: #04243d;
-    }
-    .conclusion-page h2 {
-      font-size: 2.1rem;
-      font-weight: 800;
-      margin-bottom: 1.2em;
-      color: #04243d;
-    }
-    .conclusion-page .conclusion-info {
-      font-size: 1.18rem;
-      margin-bottom: 2em;
-      color: #1e90ff;
-      font-weight: 600;
-    }
-    .conclusion-back {
-      background: #0a375e;
-      color: #fff;
-      border: none;
-      border-radius: 7px;
-      padding: 0.7em 2em;
-      font-size: 1.09em;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.17s;
-    }
-    .conclusion-back:hover {
-      background: #04243d;
-    }
     @media (max-width: 1100px) {
       .dashboard-row { flex-direction: column; align-items: center; gap: 18px;}
       .dashboard-card { min-width: 220px; max-width: 95vw;}
@@ -408,7 +372,6 @@
       </div>
       <nav>
         <button class="nav-link active" id="nav-dashboard">Dashboard</button>
-        <button class="nav-link" id="nav-clientes">Clientes</button>
         <button class="nav-link" id="nav-pedidos">Pedidos</button>
         <button class="nav-link" id="nav-pagamentos">Pagamentos</button>
       </nav>
@@ -426,41 +389,20 @@
       <span>© 2025 Azulor. Todos os direitos reservados.</span>
     </div>
   </footer>
-  <!-- Modal Adicionar Cliente -->
-  <div id="clienteModalBg" class="modal-bg">
-    <div class="modal">
-      <button onclick="closeClienteModal()" class="close-btn">&times;</button>
-      <h2>Novo Cliente</h2>
-      <form id="clienteForm" autocomplete="off">
-        <label>Nome</label>
-        <input name="nome" required maxlength="50">
-        <label>Email</label>
-        <input name="email" type="email" required maxlength="60">
-        <label>Telefone</label>
-        <input name="telefone" required maxlength="20">
-        <label>Pedido / Detalhes</label>
-        <textarea name="detalhes" required placeholder="Descreva o que o cliente solicita"></textarea>
-        <button type="submit">Adicionar Cliente</button>
-      </form>
-    </div>
-  </div>
   <!-- Pedido Modal -->
   <div id="pedidoModalBg" class="modal-bg">
     <div class="modal">
       <button onclick="closePedidoModal()" class="close-btn">&times;</button>
       <h2>Novo Pedido</h2>
       <form id="pedidoForm" autocomplete="off">
-        <label>Cliente</label>
+        <label>Nome do Cliente</label>
         <input name="cliente" required maxlength="50">
         <label>Data</label>
         <input name="data" type="date" required>
         <label>Valor (€)</label>
         <input name="valor" type="number" min="0" step="0.01" required>
-        <label>Status</label>
-        <select name="status">
-          <option value="Pendente">Pendente</option>
-          <option value="Pago">Pago</option>
-        </select>
+        <label>Descrição / Detalhes</label>
+        <textarea name="detalhes" required placeholder="Descreva o pedido"></textarea>
         <button type="submit">Adicionar Pedido</button>
       </form>
     </div>
@@ -468,13 +410,14 @@
   <script>
     // Persistent DB: load from localStorage or start empty
     let db = {
-      clientes: [],
       pedidos: [],
       pagamentos: []
     };
     const dbSaved = localStorage.getItem('azulor_db');
     if (dbSaved) {
-      db = JSON.parse(dbSaved);
+      try { db = JSON.parse(dbSaved); } catch (e) { }
+      db.pedidos = db.pedidos || [];
+      db.pagamentos = db.pagamentos || [];
     }
     function saveDB() {
       localStorage.setItem('azulor_db', JSON.stringify(db));
@@ -496,10 +439,6 @@
       main.innerHTML = `
         <div class="dashboard-row">
           <div class="dashboard-card">
-            <div class="card-label">Clientes</div>
-            <div class="card-value">${db.clientes.filter(c => !c.concluido).length}</div>
-          </div>
-          <div class="dashboard-card">
             <div class="card-label">Pedidos</div>
             <div class="card-value">${db.pedidos.length}</div>
           </div>
@@ -513,126 +452,6 @@
         </div>
       `;
     }
-
-    // Clientes
-    function renderClientes() {
-      setTitle('Clientes');
-      const main = document.getElementById('main-content');
-      main.innerHTML = `
-        <div style="display:flex;justify-content:flex-end;margin-bottom:18px;">
-          <button id="btnNovoCliente" style="background: #04243d;color: #fff;padding: 0.67em 1.5em;font-size: 1rem;font-weight: 600;border: none;border-radius: 7px;box-shadow: 0 1px 8px rgba(4,36,61,0.06);cursor: pointer;">
-            + Novo Cliente
-          </button>
-        </div>
-        <div class="az-table-wrap">
-          <table class="az-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>Telefone</th>
-                <th>Pedido/Detalhes</th>
-                <th>Conclusão</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${db.clientes.filter(c => !c.concluido).map(c => `
-                <tr>
-                  <td>${c.id}</td>
-                  <td>${c.nome}</td>
-                  <td>${c.email}</td>
-                  <td>${c.telefone}</td>
-                  <td>${c.detalhes ? c.detalhes.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}</td>
-                  <td>
-                    <button class="conclusion-btn" data-client-id="${c.id}">Concluir</button>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      `;
-
-      // Add event listeners for all "Concluir" buttons
-      document.querySelectorAll('.conclusion-btn').forEach(btn => {
-        btn.onclick = function() {
-          const clientId = parseInt(this.getAttribute('data-client-id'), 10);
-          concluirCliente(clientId);
-        }
-      });
-
-      // Novo Cliente
-      document.getElementById('btnNovoCliente').onclick = openClienteModal;
-    }
-
-    function concluirCliente(clientId) {
-      // Mark client as concluded
-      const idx = db.clientes.findIndex(c => c.id === clientId);
-      if (idx !== -1) {
-        db.clientes[idx].concluido = true;
-        saveDB();
-        renderConclusao(db.clientes[idx]);
-      }
-    }
-
-    function renderConclusao(cliente) {
-      setTitle('Concluído');
-      const main = document.getElementById('main-content');
-      main.innerHTML = `
-        <div class="conclusion-page">
-          <h2>Solicitação Concluída!</h2>
-          <div class="conclusion-info">
-            O pedido do cliente <b>${cliente.nome}</b> foi concluído com sucesso.<br>
-            <div style="margin-top:1.2em;font-size:1.05em;color:#222;">
-              <b>Detalhes:</b> ${cliente.detalhes ? cliente.detalhes.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}
-            </div>
-          </div>
-          <button class="conclusion-back" id="conclusionBackBtn">Voltar para Clientes</button>
-        </div>
-      `;
-      document.getElementById('conclusionBackBtn').onclick = () => {
-        renderClientes();
-        setActiveNav('nav-clientes');
-      };
-    }
-
-    // Modal Add Cliente
-    function openClienteModal() {
-      document.getElementById('clienteModalBg').style.display = 'flex';
-      document.getElementById('clienteForm').reset();
-    }
-    function closeClienteModal() {
-      document.getElementById('clienteModalBg').style.display = 'none';
-    }
-    document.getElementById('clienteForm').onsubmit = function(e) {
-      e.preventDefault();
-      const form = e.target;
-      const novoCliente = {
-        id: (db.clientes.at(-1)?.id || 0) + 1,
-        nome: form.nome.value,
-        email: form.email.value,
-        telefone: form.telefone.value,
-        detalhes: form.detalhes.value,
-        concluido: false
-      };
-      db.clientes.push(novoCliente);
-      saveDB();
-
-      // Adiciona automaticamente esse cliente em Pedidos
-      db.pedidos.push({
-        id: (db.pedidos.at(-1)?.id || 100) + 1,
-        cliente: novoCliente.nome,
-        data: new Date().toISOString().slice(0, 10),
-        valor: 0,
-        status: "Pendente"
-      });
-      saveDB();
-
-      closeClienteModal();
-      renderClientes();
-      setActiveNav('nav-clientes');
-    };
 
     // Pedidos
     function renderPedidos() {
@@ -652,7 +471,7 @@
                 <th>Cliente</th>
                 <th>Data</th>
                 <th>Valor (€)</th>
-                <th>Status</th>
+                <th>Descrição</th>
               </tr>
             </thead>
             <tbody id="pedidosTableBody"></tbody>
@@ -671,11 +490,7 @@
               <td>${p.cliente}</td>
               <td>${p.data}</td>
               <td style="text-align:right;">${Number(p.valor).toFixed(2)}</td>
-              <td>
-                <span class="badge ${p.status==='Pago'?'pago':'pendente'}">
-                  ${p.status}
-                </span>
-              </td>
+              <td>${p.detalhes ? p.detalhes.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}</td>
             </tr>
           `).join('');
     }
@@ -693,17 +508,27 @@
                 <th>Cliente</th>
                 <th>Valor (€)</th>
                 <th>Data</th>
-                <th>Método</th>
+                <th>Status</th>
+                <th>Ação</th>
               </tr>
             </thead>
             <tbody>
-              ${db.pagamentos.map(pg => `
+              ${db.pagamentos.map((pg, idx) => `
                 <tr>
                   <td>${pg.id}</td>
                   <td>${pg.cliente}</td>
                   <td style="text-align:right;">${pg.valor.toFixed(2)}</td>
                   <td>${pg.data}</td>
-                  <td>${pg.metodo}</td>
+                  <td>
+                    <span class="badge ${pg.status==='Pago'?'pago':'pendente'}">
+                      ${pg.status}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="status-btn" onclick="togglePagamentoStatus(${idx})">
+                      ${pg.status === "Pago" ? "Marcar Pendente" : "Marcar Pago"}
+                    </button>
+                  </td>
                 </tr>
               `).join('')}
             </tbody>
@@ -712,10 +537,20 @@
       `;
     }
 
+    // Troca status pagamento
+    window.togglePagamentoStatus = function(idx) {
+      if (db.pagamentos[idx]) {
+        db.pagamentos[idx].status = db.pagamentos[idx].status === "Pago" ? "Pendente" : "Pago";
+        saveDB();
+        renderPagamentos();
+      }
+    };
+
     // Pedido Modal
     function openPedidoModal() {
       document.getElementById('pedidoModalBg').style.display = 'flex';
       document.getElementById('pedidoForm').reset();
+      document.getElementById('pedidoForm').dataEditing = null;
     }
     function closePedidoModal() {
       document.getElementById('pedidoModalBg').style.display = 'none';
@@ -723,16 +558,30 @@
     document.getElementById('pedidoForm').onsubmit = function(e) {
       e.preventDefault();
       const form = e.target;
-      db.pedidos.push({
-        id: (db.pedidos.at(-1)?.id || 100) + 1,
+      const nextPedidoId = (db.pedidos.at(-1)?.id || 100) + 1;
+      const novoPedido = {
+        id: nextPedidoId,
         cliente: form.cliente.value,
         data: form.data.value,
         valor: Number(form.valor.value),
-        status: form.status.value
+        detalhes: form.detalhes.value
+      };
+      db.pedidos.push(novoPedido);
+      saveDB();
+
+      // Adiciona em pagamentos automaticamente, status "Pendente"
+      db.pagamentos.push({
+        id: nextPedidoId,
+        cliente: novoPedido.cliente,
+        valor: novoPedido.valor,
+        data: novoPedido.data,
+        status: "Pendente"
       });
       saveDB();
+
       closePedidoModal();
       renderPedidosTable();
+      renderPagamentos(); // Atualiza pagamentos se já estiver na tela
     };
 
     // Navigation events
@@ -740,11 +589,6 @@
       e.preventDefault();
       setActiveNav('nav-dashboard');
       renderDashboard();
-    };
-    document.getElementById('nav-clientes').onclick = (e)=>{
-      e.preventDefault();
-      setActiveNav('nav-clientes');
-      renderClientes();
     };
     document.getElementById('nav-pedidos').onclick = (e)=>{
       e.preventDefault();
