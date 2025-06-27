@@ -453,7 +453,7 @@
       letter-spacing: 1px;
       text-align: center;
     }
-    /* ESTOQUE */
+    /* STOCK */
     .stock-table-actions {
       display: flex;
       gap: 1rem;
@@ -510,8 +510,8 @@
         <button class="nav-link" id="nav-pedidos">Pedidos</button>
         <button class="nav-link" id="nav-pagamentos">Pagamentos</button>
         <button class="nav-link" id="nav-entregas">Entregas</button>
-        <!-- ESTOQUE NAV BUTTON -->
-        <button class="nav-link" id="nav-estoque">Estoque</button>
+        <!-- STOCK NAV BUTTON -->
+        <button class="nav-link" id="nav-Stock">Stock</button>
         <button class="sidebar-logout" onclick="logout()">Sair</button>
       </nav>
     </div>
@@ -554,12 +554,12 @@
       </form>
     </div>
   </div>
-  <!-- ESTOQUE MODAL -->
-  <div id="estoqueModalBg" class="modal-bg" style="z-index:10000">
+  <!-- STOCK MODAL -->
+  <div id="stockModalBg" class="modal-bg" style="z-index:10000">
     <div class="modal">
-      <button onclick="closeEstoqueModal()" class="close-btn">&times;</button>
-      <h2>Novo Item de Estoque</h2>
-      <form id="estoqueForm" autocomplete="off">
+      <button onclick="closeStockModal()" class="close-btn">&times;</button>
+      <h2>Novo Item de Stock</h2>
+      <form id="stockForm" autocomplete="off">
         <label>Nome do Produto</label>
         <input name="nome" required maxlength="60">
         <label>Descrição</label>
@@ -568,7 +568,7 @@
         <input name="quantidade" type="number" min="0" step="1" required>
         <label>Valor Unitário (€)</label>
         <input name="valor" type="number" min="0" step="0.01" required>
-        <button type="submit">Adicionar ao Estoque</button>
+        <button type="submit">Adicionar ao Stock</button>
       </form>
     </div>
   </div>
@@ -666,7 +666,7 @@
       pedidos: [],
       pagamentos: [],
       entregas: [],
-      estoque: []
+      Stock: []
     };
     const dbSaved = localStorage.getItem('azulor_db');
     if (dbSaved) {
@@ -674,7 +674,7 @@
       db.pedidos = db.pedidos || [];
       db.pagamentos = db.pagamentos || [];
       db.entregas = db.entregas || [];
-      db.estoque = db.estoque || [];
+      db.Stock = db.Stock || [];
     }
     function saveDB() {
       localStorage.setItem('azulor_db', JSON.stringify(db));
@@ -687,7 +687,7 @@
         case 'pedidos': renderPedidos(); break;
         case 'pagamentos': renderPagamentos(); break;
         case 'entregas': renderEntregas(); break;
-        case 'estoque': renderEstoque(); break;
+        case 'Stock': renderStock(); break;
       }
     }
     function setActiveNav(id) {
@@ -715,8 +715,8 @@
             <div class="card-value">${db.entregas.length}</div>
           </div>
           <div class="dashboard-card">
-            <div class="card-label">Estoque</div>
-            <div class="card-value">${db.estoque.length}</div>
+            <div class="card-label">Stock</div>
+            <div class="card-value">${db.Stock.length}</div>
           </div>
         </div>
         <div class="dashboard-info">
@@ -888,14 +888,14 @@
       `;
     }
 
-    // --- ESTOQUE ---
-    function renderEstoque() {
-      setTitle('Estoque');
+    // --- STOCK ---
+    function renderStock() {
+      setTitle('Stock');
       const main = document.getElementById('main-content');
       main.innerHTML = `
         <div class="az-table-wrap">
           <div class="stock-table-actions">
-            <button id="btnNovoEstoque" style="background: #04243d;color: #fff;padding: 0.67em 1.5em;font-size: 1rem;font-weight: 600;border: none;border-radius: 7px;box-shadow: 0 1px 8px rgba(4,36,61,0.06);cursor: pointer;">
+            <button id="btnNovoStock" style="background: #04243d;color: #fff;padding: 0.67em 1.5em;font-size: 1rem;font-weight: 600;border: none;border-radius: 7px;box-shadow: 0 1px 8px rgba(4,36,61,0.06);cursor: pointer;">
               + Novo Produto
             </button>
           </div>
@@ -910,10 +910,10 @@
                 <th>Valor Total (€)</th>
               </tr>
             </thead>
-            <tbody id="estoqueTableBody">
-              ${db.estoque.length === 0
-                ? `<tr><td colspan="6" style="text-align:center;color:#888;padding:2em;">Nenhum item de estoque cadastrado.</td></tr>`
-                : db.estoque.map((item, idx) => `
+            <tbody id="stockTableBody">
+              ${db.stock.length === 0
+                ? `<tr><td colspan="6" style="text-align:center;color:#888;padding:2em;">Nenhum item de stock listado.</td></tr>`
+                : db.stock.map((item, idx) => `
                   <tr>
                     <td style="text-align:center;">${item.id}</td>
                     <td>${item.nome}</td>
@@ -927,30 +927,30 @@
           </table>
         </div>
       `;
-      document.getElementById('btnNovoEstoque').onclick = openEstoqueModal;
+      document.getElementById('btnNovoStock').onclick = openStockModal;
     }
-    function openEstoqueModal() {
-      document.getElementById('estoqueModalBg').style.display = 'flex';
-      document.getElementById('estoqueForm').reset();
+    function openStockModal() {
+      document.getElementById('stockModalBg').style.display = 'flex';
+      document.getElementById('stockForm').reset();
     }
-    function closeEstoqueModal() {
-      document.getElementById('estoqueModalBg').style.display = 'none';
+    function closeStockModal() {
+      document.getElementById('StockModalBg').style.display = 'none';
     }
-    document.getElementById('estoqueForm').onsubmit = function(e) {
+    document.getElementById('StockForm').onsubmit = function(e) {
       e.preventDefault();
       const form = e.target;
-      const nextEstoqueId = (db.estoque.at(-1)?.id || 200) + 1;
+      const nextStockId = (db.Stock.at(-1)?.id || 200) + 1;
       const novoItem = {
-        id: nextEstoqueId,
+        id: nextStockId,
         nome: form.nome.value,
         descricao: form.descricao.value,
         quantidade: Number(form.quantidade.value),
         valor: Number(form.valor.value)
       };
-      db.estoque.push(novoItem);
+      db.Stock.push(novoItem);
       saveDB();
-      closeEstoqueModal();
-      renderEstoque();
+      closeStockModal();
+      renderStock();
     };
 
     window.togglePagamentoStatus = function(idx) {
@@ -1033,11 +1033,11 @@
       currentPage = 'entregas';
       renderEntregas();
     };
-    document.getElementById('nav-estoque').onclick = (e)=>{
+    document.getElementById('nav-Stock').onclick = (e)=>{
       e.preventDefault();
-      setActiveNav('nav-estoque');
-      currentPage = 'estoque';
-      renderEstoque();
+      setActiveNav('nav-Stock');
+      currentPage = 'Stock';
+      renderStock();
     };
     renderDashboard();
   </script>
