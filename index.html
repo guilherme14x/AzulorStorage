@@ -108,6 +108,20 @@
       margin-top: 0.2em;
       margin-bottom: 0.2em;
     }
+    .sidebar-logout {
+      background: none;
+      border: none;
+      color: #fff;
+      padding: 0.65em 1.3em 0.65em 1.2em;
+      font-size: 1.13rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 2.5em;
+      margin-left: 0.2em;
+      border-radius: 0 22px 22px 0;
+      transition: background 0.12s;
+    }
+    .sidebar-logout:hover { background: #0a375e; }
     footer {
       width: var(--sidebar-width);
       position: fixed;
@@ -325,7 +339,7 @@
       width:100%;
       padding:0.6em;
       font-size:1em;
-      border:1px solid #e3e3e3;
+      border:1.5px solid #e3e3e3;
       border-radius:6px;
       font-family: 'Inter', Arial, sans-serif;
       box-sizing: border-box;
@@ -346,26 +360,107 @@
       border-radius:7px;
       cursor:pointer;
     }
-    @media (max-width: 1100px) {
-      .dashboard-row { flex-direction: column; align-items: center; gap: 18px;}
-      .dashboard-card { min-width: 220px; max-width: 95vw;}
-      footer { width: 100vw; border-radius: 0; left: 0;}
+    /* Login page styles */
+    .login-bg {
+      position: fixed;
+      z-index: 99999;
+      left: 0; top: 0; right: 0; bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      background: var(--bg, #f7f9fa);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.15s;
     }
-    @media (max-width: 900px) {
-      .sidebar { display: none; }
-      .main-content { padding: 1rem 0.4rem 1rem 0.4rem;}
-      .main-content-area { min-width: 100vw;}
-      footer { width: 100vw; border-radius: 0; left: 0;}
+    .login-box {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.09);
+      padding: 38px 34px 34px 34px;
+      min-width: 310px;
+      width: 94vw;
+      max-width: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    @media (max-width: 600px) {
-      .topbar-title { font-size: 1.28rem;}
-      .dashboard-card { min-width: 90vw; max-width: 98vw;}
-      footer { width: 100vw; border-radius: 0; left: 0;}
+    .login-box img {
+      width: 70px; height: 70px; margin-bottom: 22px;
+    }
+    .login-box label {
+      font-weight: 600;
+      margin-top: 1.5em;
+      color: #203c55;
+      display: block;
+      font-size: 1.05em;
+      margin-bottom: 0.4em;
+    }
+    .login-box input[type=text],
+    .login-box input[type=password] {
+      font-size: 1.07em;
+      background: #f5f8fa;
+      border: 1.5px solid #e1e8ed;
+      border-radius: 6px;
+      padding: 0.65em 0.95em;
+      width: 100%;
+      margin-bottom: 0.7em;
+      outline: none;
+    }
+    .login-box button[type=submit] {
+      width: 100%;
+      background: var(--azulor-main);
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      border-radius: 7px;
+      font-size: 1.12em;
+      padding: 0.9em 0;
+      margin-top: 1.5em;
+      cursor: pointer;
+      box-shadow: 0 1px 8px rgba(4,36,61,0.09);
+      transition: background 0.17s;
+    }
+    .login-box button[type=submit]:hover {
+      background: var(--azulor-hover);
+    }
+    .login-error {
+      color: #d21f3c;
+      margin-top: 0.7em;
+      font-size: 1.04em;
+    }
+    .login-box .login-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--azulor-main);
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+    @media (max-width:500px){
+      .login-box {
+        min-width: 0;
+        padding: 22px 10vw 22px 10vw;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="main-wrapper">
+  <!-- LOGIN PAGE -->
+  <div id="loginBg" class="login-bg">
+    <form class="login-box" id="loginForm" autocomplete="off">
+      <img src="logo_azulor.png" alt="Azulor">
+      <div class="login-title">Login</div>
+      <label for="user">Usuário</label>
+      <input type="text" name="user" id="loginUser" autocomplete="username" required>
+      <label for="pass">Senha</label>
+      <input type="password" name="pass" id="loginPass" autocomplete="current-password" required>
+      <button type="submit">Entrar</button>
+      <div id="loginError" class="login-error" style="display:none"></div>
+    </form>
+  </div>
+  <!-- RESTANTE DA APP -->
+  <div class="main-wrapper" style="display:none" id="mainApp">
     <div class="sidebar">
       <div class="branding-logo">
         <img src="logo_azulor.png" alt="AZULOR logo">
@@ -375,6 +470,7 @@
         <button class="nav-link" id="nav-pedidos">Pedidos</button>
         <button class="nav-link" id="nav-pagamentos">Pagamentos</button>
         <button class="nav-link" id="nav-entregas">Entregas</button>
+        <button class="sidebar-logout" onclick="logout()">Sair</button>
       </nav>
     </div>
     <div class="main-content-area">
@@ -391,7 +487,7 @@
     </div>
   </footer>
   <!-- Pedido Modal -->
-  <div id="pedidoModalBg" class="modal-bg">
+  <div id="pedidoModalBg" class="modal-bg" style="z-index:10000">
     <div class="modal">
       <button onclick="closePedidoModal()" class="close-btn">&times;</button>
       <h2>Novo Pedido</h2>
@@ -413,6 +509,33 @@
     </div>
   </div>
   <script>
+    // LOGIN LOGIC
+    function showAppAfterLogin() {
+      document.getElementById('loginBg').style.display = 'none';
+      document.getElementById('mainApp').style.display = '';
+    }
+    function logout() {
+      sessionStorage.removeItem('azulor_loggedin');
+      location.reload();
+    }
+    // Check login on load
+    if (sessionStorage.getItem('azulor_loggedin') === '1') {
+      document.getElementById('loginBg').style.display = 'none';
+      document.getElementById('mainApp').style.display = '';
+    }
+    document.getElementById('loginForm').onsubmit = function(e) {
+      e.preventDefault();
+      const user = document.getElementById('loginUser').value.trim();
+      const pass = document.getElementById('loginPass').value;
+      if (user === 'admin' && pass === 'admin') {
+        sessionStorage.setItem('azulor_loggedin', '1');
+        showAppAfterLogin();
+      } else {
+        document.getElementById('loginError').innerText = 'Usuário ou senha inválidos!';
+        document.getElementById('loginError').style.display = '';
+      }
+    };
+
     // Persistent DB: load from localStorage or start empty
     let db = {
       pedidos: [],
