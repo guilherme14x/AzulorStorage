@@ -400,6 +400,8 @@
         <input name="cliente" required maxlength="50">
         <label>Data</label>
         <input name="data" type="date" required>
+        <label>Quantidade</label>
+        <input name="quantidade" type="number" min="1" step="1" required>
         <label>Valor (€)</label>
         <input name="valor" type="number" min="0" step="0.01" required>
         <label>Descrição / Detalhes</label>
@@ -477,6 +479,7 @@
                 <th>ID</th>
                 <th>Cliente</th>
                 <th>Data</th>
+                <th>Quantidade</th>
                 <th>Valor (€)</th>
                 <th>Descrição</th>
               </tr>
@@ -490,12 +493,13 @@
     }
     function renderPedidosTable() {
       document.getElementById('pedidosTableBody').innerHTML = db.pedidos.length === 0
-        ? `<tr><td colspan="5" style="text-align:center;color:#888;padding:2em;">Nenhum pedido cadastrado.</td></tr>`
+        ? `<tr><td colspan="6" style="text-align:center;color:#888;padding:2em;">Nenhum pedido cadastrado.</td></tr>`
         : db.pedidos.map(p => `
             <tr>
               <td style="text-align:center;">${p.id}</td>
               <td>${p.cliente}</td>
               <td>${p.data}</td>
+              <td style="text-align:center;">${p.quantidade || 1}</td>
               <td style="text-align:right;">${Number(p.valor).toFixed(2)}</td>
               <td>${p.detalhes ? p.detalhes.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}</td>
             </tr>
@@ -513,6 +517,7 @@
               <tr>
                 <th>ID</th>
                 <th>Cliente</th>
+                <th>Quantidade</th>
                 <th>Valor (€)</th>
                 <th>Data</th>
                 <th>Status</th>
@@ -524,6 +529,7 @@
                 <tr>
                   <td>${pg.id}</td>
                   <td>${pg.cliente}</td>
+                  <td style="text-align:center;">${getQuantidadeByPedidoId(pg.id)}</td>
                   <td style="text-align:right;">${pg.valor.toFixed(2)}</td>
                   <td>${pg.data}</td>
                   <td>
@@ -544,6 +550,12 @@
       `;
     }
 
+    // Busca quantidade do pedido pelo id (para mostrar em pagamentos/entregas)
+    function getQuantidadeByPedidoId(pid) {
+      const pedido = db.pedidos.find(p => p.id === pid);
+      return pedido ? (pedido.quantidade || 1) : '';
+    }
+
     function addEntregaFromPagamento(pg) {
       if (!db.entregas.some(e => e.id === pg.id)) {
         db.entregas.push({
@@ -551,6 +563,7 @@
           cliente: pg.cliente,
           valor: pg.valor,
           data: pg.data,
+          quantidade: getQuantidadeByPedidoId(pg.id),
           status: "Não Entregue"
         });
         saveDB();
@@ -575,6 +588,7 @@
               <tr>
                 <th>ID</th>
                 <th>Cliente</th>
+                <th>Quantidade</th>
                 <th>Valor (€)</th>
                 <th>Data</th>
                 <th>Status</th>
@@ -586,6 +600,7 @@
                 <tr>
                   <td>${en.id}</td>
                   <td>${en.cliente}</td>
+                  <td style="text-align:center;">${getQuantidadeByPedidoId(en.id)}</td>
                   <td style="text-align:right;">${en.valor.toFixed(2)}</td>
                   <td>${en.data}</td>
                   <td>
@@ -631,7 +646,7 @@
       }
     };
 
-    // Pedido Modal
+    // Pedido Modal logic
     function openPedidoModal() {
       document.getElementById('pedidoModalBg').style.display = 'flex';
       document.getElementById('pedidoForm').reset();
@@ -648,6 +663,7 @@
         id: nextPedidoId,
         cliente: form.cliente.value,
         data: form.data.value,
+        quantidade: Number(form.quantidade.value),
         valor: Number(form.valor.value),
         detalhes: form.detalhes.value
       };
