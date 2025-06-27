@@ -505,6 +505,11 @@
     .stock-cancel-btn:hover {
       background: #9e172c;
     }
+    /* Centralize only the Preço Unitário (€) column in the estoque table */
+    .az-table th:nth-child(3),
+    .az-table td:nth-child(3) {
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -963,7 +968,7 @@
           <tr>
             <td>${p.nome}</td>
             <td style="text-align:center;">${p.quantidade}</td>
-            <td style="text-align:right;">${Number(p.preco).toFixed(2)}</td>
+            <td style="text-align:center;">${Number(p.preco).toFixed(2)}</td>
             <td>${p.descricao ? p.descricao.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}</td>
             <td>
               <button class="stock-edit-btn" onclick="openEstoqueModal(${idx})">Editar</button>
