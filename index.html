@@ -228,6 +228,7 @@
       color: var(--azulor-main);
       margin-top: 0;
       letter-spacing: 1.2px;
+      text-align: center;
     }
     .dashboard-info {
       text-align: center;
@@ -453,12 +454,17 @@
       letter-spacing: 1px;
       text-align: center;
     }
-    /* ESTOQUE */
-    .stock-table-actions {
+    /* STOCK styles: center numbers */
+    .az-table th, .az-table td {
+      text-align: center !important;
+    }
+    .az-table .stock-number {
       display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
-      justify-content: flex-end;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15em;
+      font-weight: 600;
     }
     @media (max-width:500px){
       .login-box {
@@ -510,8 +516,8 @@
         <button class="nav-link" id="nav-pedidos">Pedidos</button>
         <button class="nav-link" id="nav-pagamentos">Pagamentos</button>
         <button class="nav-link" id="nav-entregas">Entregas</button>
-        <!-- ESTOQUE NAV BUTTON -->
-        <button class="nav-link" id="nav-estoque">Estoque</button>
+        <!-- STOCK NAV BUTTON -->
+        <button class="nav-link" id="nav-estoque">Stock</button>
         <button class="sidebar-logout" onclick="logout()">Sair</button>
       </nav>
     </div>
@@ -554,11 +560,11 @@
       </form>
     </div>
   </div>
-  <!-- ESTOQUE MODAL -->
+  <!-- STOCK MODAL -->
   <div id="estoqueModalBg" class="modal-bg" style="z-index:10000">
     <div class="modal">
       <button onclick="closeEstoqueModal()" class="close-btn">&times;</button>
-      <h2>Novo Item de Estoque</h2>
+      <h2>Novo Item de Stock</h2>
       <form id="estoqueForm" autocomplete="off">
         <label>Nome do Produto</label>
         <input name="nome" required maxlength="60">
@@ -568,7 +574,7 @@
         <input name="quantidade" type="number" min="0" step="1" required>
         <label>Valor Unitário (€)</label>
         <input name="valor" type="number" min="0" step="0.01" required>
-        <button type="submit">Adicionar ao Estoque</button>
+        <button type="submit">Adicionar ao Stock</button>
       </form>
     </div>
   </div>
@@ -715,7 +721,7 @@
             <div class="card-value">${db.entregas.length}</div>
           </div>
           <div class="dashboard-card">
-            <div class="card-label">Estoque</div>
+            <div class="card-label">Stock</div>
             <div class="card-value">${db.estoque.length}</div>
           </div>
         </div>
@@ -888,9 +894,9 @@
       `;
     }
 
-    // --- ESTOQUE ---
+    // --- STOCK ---
     function renderEstoque() {
-      setTitle('Estoque');
+      setTitle('Stock');
       const main = document.getElementById('main-content');
       main.innerHTML = `
         <div class="az-table-wrap">
@@ -912,15 +918,15 @@
             </thead>
             <tbody id="estoqueTableBody">
               ${db.estoque.length === 0
-                ? `<tr><td colspan="6" style="text-align:center;color:#888;padding:2em;">Nenhum item de estoque cadastrado.</td></tr>`
+                ? `<tr><td colspan="6" style="text-align:center;color:#888;padding:2em;">Nenhum item de stock cadastrado.</td></tr>`
                 : db.estoque.map((item, idx) => `
                   <tr>
-                    <td style="text-align:center;">${item.id}</td>
+                    <td class="stock-number">${item.id}</td>
                     <td>${item.nome}</td>
                     <td>${item.descricao || ''}</td>
-                    <td style="text-align:center;">${item.quantidade}</td>
-                    <td style="text-align:right;">${Number(item.valor).toFixed(2)}</td>
-                    <td style="text-align:right;">${(item.quantidade * item.valor).toFixed(2)}</td>
+                    <td class="stock-number">${item.quantidade}</td>
+                    <td class="stock-number">${Number(item.valor).toFixed(2)}</td>
+                    <td class="stock-number">${(item.quantidade * item.valor).toFixed(2)}</td>
                   </tr>
                 `).join('')}
             </tbody>
