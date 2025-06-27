@@ -6,6 +6,7 @@
   <title>Azulor Plataforma</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
+    /* [CSS unchanged, same as before] */
     :root {
       --azulor-main: #04243d;
       --azulor-secondary: #0a375e;
@@ -428,6 +429,17 @@
       localStorage.setItem('azulor_db', JSON.stringify(db));
     }
 
+    // Track current page
+    let currentPage = 'dashboard';
+    function showCurrentPage() {
+      switch(currentPage) {
+        case 'dashboard': renderDashboard(); break;
+        case 'pedidos': renderPedidos(); break;
+        case 'pagamentos': renderPagamentos(); break;
+        case 'entregas': renderEntregas(); break;
+      }
+    }
+
     // Navigation state
     function setActiveNav(id) {
       document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
@@ -632,8 +644,7 @@
         } else {
           removeEntregaByPagamentoId(pg.id);
         }
-        renderPagamentos();
-        renderEntregas();
+        showCurrentPage();
       }
     };
 
@@ -642,7 +653,7 @@
       if (db.entregas[idx]) {
         db.entregas[idx].status = db.entregas[idx].status === "Entregue" ? "Não Entregue" : "Entregue";
         saveDB();
-        renderEntregas();
+        showCurrentPage();
       }
     };
 
@@ -681,30 +692,32 @@
       saveDB();
 
       closePedidoModal();
-      renderPedidosTable();
-      renderPagamentos();
-      renderEntregas();
+      showCurrentPage(); // stays on current section!
     };
 
     // Navigation events
     document.getElementById('nav-dashboard').onclick = (e)=>{
       e.preventDefault();
       setActiveNav('nav-dashboard');
+      currentPage = 'dashboard';
       renderDashboard();
     };
     document.getElementById('nav-pedidos').onclick = (e)=>{
       e.preventDefault();
       setActiveNav('nav-pedidos');
+      currentPage = 'pedidos';
       renderPedidos();
     };
     document.getElementById('nav-pagamentos').onclick = (e)=>{
       e.preventDefault();
       setActiveNav('nav-pagamentos');
+      currentPage = 'pagamentos';
       renderPagamentos();
     };
     document.getElementById('nav-entregas').onclick = (e)=>{
       e.preventDefault();
       setActiveNav('nav-entregas');
+      currentPage = 'entregas';
       renderEntregas();
     };
 
