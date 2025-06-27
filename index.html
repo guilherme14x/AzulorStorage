@@ -544,6 +544,26 @@
       `;
     }
 
+    function addEntregaFromPagamento(pg) {
+      if (!db.entregas.some(e => e.id === pg.id)) {
+        db.entregas.push({
+          id: pg.id,
+          cliente: pg.cliente,
+          valor: pg.valor,
+          data: pg.data,
+          status: "Não Entregue"
+        });
+        saveDB();
+      }
+    }
+    function removeEntregaByPagamentoId(pid) {
+      const idx = db.entregas.findIndex(e => e.id === pid);
+      if (idx !== -1) {
+        db.entregas.splice(idx, 1);
+        saveDB();
+      }
+    }
+
     // Entregas
     function renderEntregas() {
       setTitle('Entregas');
@@ -586,12 +606,19 @@
       `;
     }
 
-    // Troca status pagamento
+    // Troca status pagamento e sincroniza entregas
     window.togglePagamentoStatus = function(idx) {
       if (db.pagamentos[idx]) {
-        db.pagamentos[idx].status = db.pagamentos[idx].status === "Pago" ? "Pendente" : "Pago";
+        const pg = db.pagamentos[idx];
+        pg.status = pg.status === "Pago" ? "Pendente" : "Pago";
         saveDB();
+        if (pg.status === "Pago") {
+          addEntregaFromPagamento(pg);
+        } else {
+          removeEntregaByPagamentoId(pg.id);
+        }
         renderPagamentos();
+        renderEntregas();
       }
     };
 
@@ -634,16 +661,6 @@
         valor: novoPedido.valor,
         data: novoPedido.data,
         status: "Pendente"
-      });
-      saveDB();
-
-      // Adiciona em entregas automaticamente, status "Não Entregue"
-      db.entregas.push({
-        id: nextPedidoId,
-        cliente: novoPedido.cliente,
-        valor: novoPedido.valor,
-        data: novoPedido.data,
-        status: "Não Entregue"
       });
       saveDB();
 
