@@ -554,7 +554,7 @@
         <button class="nav-link" id="nav-pedidos">Pedidos</button>
         <button class="nav-link" id="nav-pagamentos">Pagamentos</button>
         <button class="nav-link" id="nav-entregas">Entregas</button>
-        <button class="nav-link" id="nav-estoque">Estoque</button>
+        <button class="nav-link" id="nav-estoque">Stock</button>
         <button class="sidebar-logout" onclick="logout()">Sair</button>
       </nav>
     </div>
@@ -759,7 +759,7 @@
             <div class="card-value">${db.entregas.length}</div>
           </div>
           <div class="dashboard-card">
-            <div class="card-label">Produtos em Estoque</div>
+            <div class="card-label">Produtos em Stock</div>
             <div class="card-value">${db.estoque.length}</div>
           </div>
         </div>
@@ -934,7 +934,7 @@
 
     // ---------- ESTOQUE -----------
     function renderEstoque() {
-      setTitle('Estoque');
+      setTitle('Stock');
       const main = document.getElementById('main-content');
       main.innerHTML = `
         <div class="az-table-wrap">
@@ -963,7 +963,7 @@
     function renderEstoqueTable() {
       const tbody = document.getElementById('estoqueTableBody');
       tbody.innerHTML = db.estoque.length === 0
-        ? `<tr><td colspan="5" style="text-align:center;color:#888;padding:2em;">Nenhum produto no estoque.</td></tr>`
+        ? `<tr><td colspan="5" style="text-align:center;color:#888;padding:2em;">Nenhum produto no stock.</td></tr>`
         : db.estoque.map((p, idx) => `
           <tr>
             <td>${p.nome}</td>
@@ -972,7 +972,7 @@
             <td>${p.descricao ? p.descricao.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}</td>
             <td>
               <button class="stock-edit-btn" onclick="openEstoqueModal(${idx})">Editar</button>
-              <button class="stock-cancel-btn" onclick="removerProdutoEstoque(${idx})">Excluir</button>
+              <button class="stock-cancel-btn" onclick="removerProdutoEstoque(${idx})">Eliminar</button>
             </td>
           </tr>
         `).join('');
@@ -995,7 +995,7 @@
       document.getElementById('estoqueModalBg').style.display = 'none';
     }
     window.removerProdutoEstoque = function(idx) {
-      if (confirm('Tem certeza que deseja remover este produto do estoque?')) {
+      if (confirm('Tem certeza que deseja remover este produto do stock?')) {
         db.estoque.splice(idx, 1);
         saveDB();
         renderEstoqueTable();
@@ -1019,8 +1019,8 @@
       }
       saveDB();
       closeEstoqueModal();
-      renderEstoqueTable();
-      renderDashboard();
+      // Permanece na página de stock ao adicionar/salvar
+      renderEstoque();
     };
 
     // ---------- /ESTOQUE ----------
