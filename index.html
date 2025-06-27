@@ -532,6 +532,40 @@
   #floatingLoginsBtn:hover {
     background-color: #0a375e;
   }
+
+<style>
+  #floatingLoginsBtn {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #04243d;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 58px;
+    height: 58px;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 58px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    z-index: 9999;
+    transition: background 0.2s ease;
+  }
+
+  #floatingLoginsBtn:hover {
+    background-color: #0a375e;
+  }
+
+  #floatingLoginsBtn::after {
+    content: "\1F4D1"; /* ícone Unicode (ícone de documento) */
+    display: inline-block;
+    font-size: 24px;
+  }
+</style>
+
 </style>
 
 </style>
@@ -1217,7 +1251,7 @@ document.getElementById('nav-logins').onclick = (e)=>{
 <!-- === FIM: Histórico de Login === -->
 
 
-<button id="floatingLoginsBtn" onclick="renderLoginHistory()">Logins</button>
+<button id="floatingLoginsBtn" onclick="renderLoginHistory()"></button>
 
 </body>
 </html>
