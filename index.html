@@ -260,6 +260,21 @@
       font-size: 1.04rem;
       background: #fff;
     }
+    .conclusion-btn {
+      background: #1e90ff;
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      padding: 0.4em 1em;
+      font-size: 1em;
+      cursor: pointer;
+      margin-left: 0.8em;
+      transition: background 0.15s;
+    }
+    .conclusion-btn:hover {
+      background: #146cb2;
+    }
     .badge {
       display:inline-block;
       padding:3px 12px;
@@ -308,12 +323,18 @@
       font-weight:600;
       font-size:.97em;
     }
-    .modal input, .modal select {
+    .modal input, .modal select, .modal textarea {
       width:100%;
       padding:0.6em;
       font-size:1em;
       border:1px solid #e3e3e3;
       border-radius:6px;
+      font-family: 'Inter', Arial, sans-serif;
+      box-sizing: border-box;
+    }
+    .modal textarea {
+      min-height: 60px;
+      resize: vertical;
     }
     .modal button[type=submit] {
       margin-top:1.2em;
@@ -326,6 +347,43 @@
       border:none;
       border-radius:7px;
       cursor:pointer;
+    }
+    /* Conclusion page */
+    .conclusion-page {
+      max-width: 480px;
+      margin: 60px auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 6px 32px rgba(4,36,61,0.11);
+      padding: 44px 26px 38px 26px;
+      text-align: center;
+      color: #04243d;
+    }
+    .conclusion-page h2 {
+      font-size: 2.1rem;
+      font-weight: 800;
+      margin-bottom: 1.2em;
+      color: #04243d;
+    }
+    .conclusion-page .conclusion-info {
+      font-size: 1.18rem;
+      margin-bottom: 2em;
+      color: #1e90ff;
+      font-weight: 600;
+    }
+    .conclusion-back {
+      background: #0a375e;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 0.7em 2em;
+      font-size: 1.09em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.17s;
+    }
+    .conclusion-back:hover {
+      background: #04243d;
     }
     @media (max-width: 1100px) {
       .dashboard-row { flex-direction: column; align-items: center; gap: 18px;}
@@ -371,6 +429,24 @@
       <span>© 2025 Azulor. Todos os direitos reservados.</span>
     </div>
   </footer>
+  <!-- Modal Adicionar Cliente -->
+  <div id="clienteModalBg" class="modal-bg">
+    <div class="modal">
+      <button onclick="closeClienteModal()" class="close-btn">&times;</button>
+      <h2>Novo Cliente</h2>
+      <form id="clienteForm" autocomplete="off">
+        <label>Nome</label>
+        <input name="nome" required maxlength="50">
+        <label>Email</label>
+        <input name="email" type="email" required maxlength="60">
+        <label>Telefone</label>
+        <input name="telefone" required maxlength="20">
+        <label>Pedido / Detalhes</label>
+        <textarea name="detalhes" required placeholder="Descreva o que o cliente solicita"></textarea>
+        <button type="submit">Adicionar Cliente</button>
+      </form>
+    </div>
+  </div>
   <!-- Pedido Modal -->
   <div id="pedidoModalBg" class="modal-bg">
     <div class="modal">
@@ -396,8 +472,8 @@
     // "Base de dados" (dummy para demo, pronto para backend real)
     const db = {
       clientes: [
-        {id: 1, nome: "Maria Silva", email: "maria@email.com", telefone: "912345678"},
-        {id: 2, nome: "Carlos Costa", email: "carlos@email.com", telefone: "913333888"}
+        {id: 1, nome: "Maria Silva", email: "maria@email.com", telefone: "912345678", detalhes: "Consultoria financeira", concluido: false},
+        {id: 2, nome: "Carlos Costa", email: "carlos@email.com", telefone: "913333888", detalhes: "Projeto de website", concluido: false}
       ],
       pedidos: [
         {id: 101, cliente: "Maria Silva", data: "2025-06-12", valor: 300, status: "Pago"},
@@ -426,7 +502,7 @@
         <div class="dashboard-row">
           <div class="dashboard-card">
             <div class="card-label">Clientes</div>
-            <div class="card-value">${db.clientes.length}</div>
+            <div class="card-value">${db.clientes.filter(c => !c.concluido).length}</div>
           </div>
           <div class="dashboard-card">
             <div class="card-label">Pedidos</div>
@@ -448,6 +524,11 @@
       setTitle('Clientes');
       const main = document.getElementById('main-content');
       main.innerHTML = `
+        <div style="display:flex;justify-content:flex-end;margin-bottom:18px;">
+          <button id="btnNovoCliente" style="background: #04243d;color: #fff;padding: 0.67em 1.5em;font-size: 1rem;font-weight: 600;border: none;border-radius: 7px;box-shadow: 0 1px 8px rgba(4,36,61,0.06);cursor: pointer;">
+            + Novo Cliente
+          </button>
+        </div>
         <div class="az-table-wrap">
           <table class="az-table">
             <thead>
@@ -456,22 +537,93 @@
                 <th>Nome</th>
                 <th>Email</th>
                 <th>Telefone</th>
+                <th>Pedido/Detalhes</th>
+                <th>Conclusão</th>
               </tr>
             </thead>
             <tbody>
-              ${db.clientes.map(c => `
+              ${db.clientes.filter(c => !c.concluido).map(c => `
                 <tr>
                   <td>${c.id}</td>
                   <td>${c.nome}</td>
                   <td>${c.email}</td>
                   <td>${c.telefone}</td>
+                  <td>${c.detalhes ? c.detalhes.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}</td>
+                  <td>
+                    <button class="conclusion-btn" data-client-id="${c.id}">Concluir</button>
+                  </td>
                 </tr>
               `).join('')}
             </tbody>
           </table>
         </div>
       `;
+
+      // Add event listeners for all "Concluir" buttons
+      document.querySelectorAll('.conclusion-btn').forEach(btn => {
+        btn.onclick = function() {
+          const clientId = parseInt(this.getAttribute('data-client-id'), 10);
+          concluirCliente(clientId);
+        }
+      });
+
+      // Novo Cliente
+      document.getElementById('btnNovoCliente').onclick = openClienteModal;
     }
+
+    function concluirCliente(clientId) {
+      // Mark client as concluded
+      const idx = db.clientes.findIndex(c => c.id === clientId);
+      if (idx !== -1) {
+        db.clientes[idx].concluido = true;
+        renderConclusao(db.clientes[idx]);
+      }
+    }
+
+    function renderConclusao(cliente) {
+      setTitle('Concluído');
+      const main = document.getElementById('main-content');
+      main.innerHTML = `
+        <div class="conclusion-page">
+          <h2>Solicitação Concluída!</h2>
+          <div class="conclusion-info">
+            O pedido do cliente <b>${cliente.nome}</b> foi concluído com sucesso.<br>
+            <div style="margin-top:1.2em;font-size:1.05em;color:#222;">
+              <b>Detalhes:</b> ${cliente.detalhes ? cliente.detalhes.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}
+            </div>
+          </div>
+          <button class="conclusion-back" id="conclusionBackBtn">Voltar para Clientes</button>
+        </div>
+      `;
+      document.getElementById('conclusionBackBtn').onclick = () => {
+        renderClientes();
+        setActiveNav('nav-clientes');
+      };
+    }
+
+    // Modal Add Cliente
+    function openClienteModal() {
+      document.getElementById('clienteModalBg').style.display = 'flex';
+      document.getElementById('clienteForm').reset();
+    }
+    function closeClienteModal() {
+      document.getElementById('clienteModalBg').style.display = 'none';
+    }
+    document.getElementById('clienteForm').onsubmit = function(e) {
+      e.preventDefault();
+      const form = e.target;
+      db.clientes.push({
+        id: (db.clientes.at(-1)?.id || 0) + 1,
+        nome: form.nome.value,
+        email: form.email.value,
+        telefone: form.telefone.value,
+        detalhes: form.detalhes.value,
+        concluido: false
+      });
+      closeClienteModal();
+      renderClientes();
+      setActiveNav('nav-clientes');
+    };
 
     // Pedidos
     function renderPedidos() {
