@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
@@ -25,10 +25,6 @@
       box-sizing: border-box;
       font-family: 'Inter', Arial, sans-serif;
       color: #102030;
-      /* Fix: Prevent horizontal scroll */
-      overflow-x: hidden;
-      width: 100vw;
-      max-width: 100vw;
     }
     body {
       min-height: 100vh;
@@ -36,10 +32,6 @@
       display: flex;
       flex-direction: column;
       background: var(--bg);
-      /* Fix: Prevent horizontal scroll */
-      overflow-x: hidden;
-      width: 100vw;
-      max-width: 100vw;
     }
     .main-wrapper {
       flex: 1 0 auto;
@@ -47,9 +39,6 @@
       min-height: 0;
       width: 100%;
       background: var(--bg);
-      /* Fix: Prevent horizontal scroll */
-      overflow-x: hidden;
-      max-width: 100vw;
     }
     .sidebar {
       width: var(--sidebar-width);
@@ -64,8 +53,6 @@
       position: relative;
       transition: all var(--transition);
       padding-bottom: 0;
-      /* Fix: Don't allow sidebar to overflow */
-      box-sizing: border-box;
     }
     .branding-logo {
       margin-top: 2.5rem;
@@ -176,10 +163,6 @@
       flex-direction: column;
       min-height: 100vh;
       background: var(--bg);
-      /* Fix: Prevent horizontal scroll */
-      overflow-x: hidden;
-      width: 100%;
-      max-width: 100vw;
     }
     .topbar {
       width: 100%;
@@ -187,9 +170,6 @@
       box-sizing: border-box;
       text-align: center;
       background: var(--bg);
-      /* Fix: Prevent horizontal scroll */
-      overflow-x: hidden;
-      max-width: 100vw;
     }
     .topbar-title {
       font-size: 2.35rem;
@@ -208,9 +188,6 @@
       position: relative;
       transition: all var(--transition);
       padding: 0;
-      /* Fix: Prevent horizontal scroll */
-      overflow-x: hidden;
-      max-width: 100vw;
     }
     .dashboard-row {
       display: flex;
@@ -265,11 +242,6 @@
       margin: 0 auto;
       max-width: 970px;
       background: none;
-      /* Fix: Prevent side scroll on table wrap */
-      box-sizing: border-box;
-      /* Add this: */
-      /* Hide horizontal scrollbar if not needed, but allow table to scroll if needed */
-      /*overflow-x: auto;*/
     }
     .az-table {
       width: 100%;
@@ -278,17 +250,11 @@
       box-shadow: var(--shadow);
       border-collapse: collapse;
       overflow: hidden;
-      min-width: 900px; /* Fix: Prevent table from shrinking and causing side scroll */
-      max-width: 100%;
-      box-sizing: border-box;
     }
     .az-table th, .az-table td {
       padding: 1.1em 0.8em;
       text-align: left;
       font-size: 1.08rem;
-      white-space: normal;
-      /* Prevent overflow causing scroll */
-      word-break: break-word;
     }
     .az-table th {
       background: var(--azulor-light);
@@ -406,8 +372,6 @@
       justify-content: center;
       align-items: center;
       transition: all 0.15s;
-      overflow-x: hidden;
-      max-width: 100vw;
     }
     .login-box {
       background: #fff;
@@ -493,9 +457,6 @@
       .login-box {
         min-width: 0;
         padding: 22px 10vw 22px 10vw;
-      }
-      .az-table {
-        min-width: 600px;
       }
     }
     /* Stock styles */
@@ -656,7 +617,501 @@
     </div>
   </div>
   <script>
-    // TODO: JS remains unchanged, omitted for brevity...
+    // --- USUÁRIOS REGISTRADOS (localStorage) ---
+    function getUsers() {
+      let u = [];
+      try { u = JSON.parse(localStorage.getItem('azulor_users') || "[]"); } catch(e){}
+      if (!Array.isArray(u)) u = [];
+      return u;
+    }
+    function saveUsers(users) {
+      localStorage.setItem('azulor_users', JSON.stringify(users));
+    }
+    function registerUser(username, email, password) {
+      let users = getUsers();
+      if (users.some(u => u.username === username)) return "Usuário já existe!";
+      if (users.some(u => u.email === email)) return "Email já registrado!";
+      users.push({username, email, password});
+      saveUsers(users);
+      return true;
+    }
+    function checkLogin(username, password) {
+      if (username === 'admin' && password === 'admin') return true;
+      let users = getUsers();
+      return users.some(u => u.username === username && u.password === password);
+    }
+
+    // --- LOGIN/REGISTER UI ---
+    function showLoginForm() {
+      document.getElementById('loginForm').style.display = '';
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('loginError').style.display = 'none';
+    }
+    function showRegisterForm() {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = '';
+      document.getElementById('registerError').style.display = 'none';
+      document.getElementById('registerSuccess').style.display = 'none';
+    }
+    document.getElementById('showRegister').onclick = showRegisterForm;
+    document.getElementById('showLogin').onclick = showLoginForm;
+
+    function showAppAfterLogin() {
+      document.getElementById('loginBg').style.display = 'none';
+      document.getElementById('mainApp').style.display = '';
+    }
+    function logout() {
+      sessionStorage.removeItem('azulor_loggedin');
+      location.reload();
+    }
+
+    if (sessionStorage.getItem('azulor_loggedin') === '1') {
+      document.getElementById('loginBg').style.display = 'none';
+      document.getElementById('mainApp').style.display = '';
+    }
+
+    document.getElementById('loginForm').onsubmit = function(e) {
+      e.preventDefault();
+      const user = document.getElementById('loginUser').value.trim();
+      const pass = document.getElementById('loginPass').value;
+      if (checkLogin(user, pass)) {
+        sessionStorage.setItem('azulor_loggedin', '1');
+        showAppAfterLogin();
+      } else {
+        document.getElementById('loginError').innerText = 'Usuário ou senha inválidos!';
+        document.getElementById('loginError').style.display = '';
+      }
+    };
+    document.getElementById('registerForm').onsubmit = function(e) {
+      e.preventDefault();
+      const user = document.getElementById('regUser').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const pass = document.getElementById('regPass').value;
+      document.getElementById('registerError').style.display = 'none';
+      document.getElementById('registerSuccess').style.display = 'none';
+      if (!user || !email || !pass) {
+        document.getElementById('registerError').innerText = 'Preencha todos os campos!';
+        document.getElementById('registerError').style.display = '';
+        return;
+      }
+      const res = registerUser(user, email, pass);
+      if (res === true) {
+        document.getElementById('registerSuccess').innerText = 'Usuário registrado com sucesso! Você pode fazer login.';
+        document.getElementById('registerSuccess').style.display = '';
+        setTimeout(showLoginForm, 1300);
+      } else {
+        document.getElementById('registerError').innerText = res;
+        document.getElementById('registerError').style.display = '';
+      }
+    };
+
+    // --- RESTANTE DA APP ---
+    let db = {
+      pedidos: [],
+      pagamentos: [],
+      entregas: [],
+      estoque: []
+    };
+    const dbSaved = localStorage.getItem('azulor_db');
+    if (dbSaved) {
+      try { db = JSON.parse(dbSaved); } catch (e) {}
+      db.pedidos = db.pedidos || [];
+      db.pagamentos = db.pagamentos || [];
+      db.entregas = db.entregas || [];
+      db.estoque = db.estoque || [];
+    }
+    function saveDB() {
+      localStorage.setItem('azulor_db', JSON.stringify(db));
+    }
+
+    let currentPage = 'dashboard';
+    function showCurrentPage() {
+      switch(currentPage) {
+        case 'dashboard': renderDashboard(); break;
+        case 'pedidos': renderPedidos(); break;
+        case 'pagamentos': renderPagamentos(); break;
+        case 'entregas': renderEntregas(); break;
+        case 'estoque': renderEstoque(); break;
+      }
+    }
+    function setActiveNav(id) {
+      document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+    function setTitle(text) {
+      document.getElementById('topbar-title').textContent = text;
+    }
+    function renderDashboard() {
+      setTitle('Bem-vindo à Plataforma Azulor');
+      const main = document.getElementById('main-content');
+      main.innerHTML = `
+        <div class="dashboard-row">
+          <div class="dashboard-card">
+            <div class="card-label">Pedidos</div>
+            <div class="card-value">${db.pedidos.length}</div>
+          </div>
+          <div class="dashboard-card">
+            <div class="card-label">Pagamentos</div>
+            <div class="card-value">${db.pagamentos.length}</div>
+          </div>
+          <div class="dashboard-card">
+            <div class="card-label">Entregas</div>
+            <div class="card-value">${db.entregas.length}</div>
+          </div>
+          <div class="dashboard-card">
+            <div class="card-label">Produtos em Stock</div>
+            <div class="card-value">${db.estoque.length}</div>
+          </div>
+        </div>
+        <div class="dashboard-info">
+          Selecione uma opção no menu à esquerda para começar.
+        </div>
+      `;
+    }
+    function renderPedidos() {
+      setTitle('Pedidos');
+      const main = document.getElementById('main-content');
+      main.innerHTML = `
+        <div class="az-table-wrap" style="margin-top:0;">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:18px;">
+            <button id="btnNovoPedido" style="background: #04243d;color: #fff;padding: 0.67em 1.5em;font-size: 1rem;font-weight: 600;border: none;border-radius: 7px;box-shadow: 0 1px 8px rgba(4,36,61,0.06);cursor: pointer;">
+              + Novo Pedido
+            </button>
+          </div>
+          <table class="az-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Email</th>
+                <th>Data</th>
+                <th>Quantidade</th>
+                <th>Valor (€)</th>
+                <th>Descrição</th>
+                <th>Local Carga</th>
+                <th>Local Descarga</th>
+              </tr>
+            </thead>
+            <tbody id="pedidosTableBody"></tbody>
+          </table>
+        </div>
+      `;
+      document.getElementById('btnNovoPedido').onclick = openPedidoModal;
+      renderPedidosTable();
+    }
+    function renderPedidosTable() {
+      document.getElementById('pedidosTableBody').innerHTML = db.pedidos.length === 0
+        ? `<tr><td colspan="9" style="text-align:center;color:#888;padding:2em;">Nenhum pedido cadastrado.</td></tr>`
+        : db.pedidos.map(p => `
+            <tr>
+              <td style="text-align:center;">${p.id}</td>
+              <td>${p.cliente}</td>
+              <td>${p.email || ''}</td>
+              <td>${p.data}</td>
+              <td style="text-align:center;">${p.quantidade || 1}</td>
+              <td style="text-align:right;">${Number(p.valor).toFixed(2)}</td>
+              <td>${p.detalhes ? p.detalhes.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}</td>
+              <td>${p.local_carga || ""}</td>
+              <td>${p.local_descarga || ""}</td>
+            </tr>
+          `).join('');
+    }
+    function renderPagamentos() {
+      setTitle('Pagamentos');
+      const main = document.getElementById('main-content');
+      main.innerHTML = `
+        <div class="az-table-wrap">
+          <table class="az-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Quantidade</th>
+                <th>Valor (€)</th>
+                <th>Data</th>
+                <th>Status</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${db.pagamentos.map((pg, idx) => `
+                <tr>
+                  <td>${pg.id}</td>
+                  <td>${pg.cliente}</td>
+                  <td style="text-align:center;">${getQuantidadeByPedidoId(pg.id)}</td>
+                  <td style="text-align:right;">${pg.valor.toFixed(2)}</td>
+                  <td>${pg.data}</td>
+                  <td>
+                    <span class="badge ${pg.status==='Pago'?'pago':'pendente'}">
+                      ${pg.status}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="status-btn" onclick="togglePagamentoStatus(${idx})">
+                      ${pg.status === "Pago" ? "Marcar Pendente" : "Marcar Pago"}
+                    </button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+    function getQuantidadeByPedidoId(pid) {
+      const pedido = db.pedidos.find(p => p.id === pid);
+      return pedido ? (pedido.quantidade || 1) : '';
+    }
+    function addEntregaFromPagamento(pg) {
+      if (!db.entregas.some(e => e.id === pg.id)) {
+        const pedido = db.pedidos.find(p => p.id === pg.id);
+        db.entregas.push({
+          id: pg.id,
+          cliente: pg.cliente,
+          valor: pg.valor,
+          data: pg.data,
+          quantidade: pedido ? pedido.quantidade : 1,
+          status: "Não Entregue",
+          local_carga: pedido ? pedido.local_carga : "",
+          local_descarga: pedido ? pedido.local_descarga : ""
+        });
+        saveDB();
+      }
+    }
+    function removeEntregaByPagamentoId(pid) {
+      const idx = db.entregas.findIndex(e => e.id === pid);
+      if (idx !== -1) {
+        db.entregas.splice(idx, 1);
+        saveDB();
+      }
+    }
+    function renderEntregas() {
+      setTitle('Entregas');
+      const main = document.getElementById('main-content');
+      main.innerHTML = `
+        <div class="az-table-wrap">
+          <table class="az-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Quantidade</th>
+                <th>Valor (€)</th>
+                <th>Local Carga</th>
+                <th>Local Descarga</th>
+                <th>Data</th>
+                <th>Status</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${db.entregas.map((en, idx) => `
+                <tr>
+                  <td>${en.id}</td>
+                  <td>${en.cliente}</td>
+                  <td style="text-align:center;">${getQuantidadeByPedidoId(en.id)}</td>
+                  <td style="text-align:right;">${en.valor.toFixed(2)}</td>
+                  <td>${en.local_carga || ''}</td>
+                  <td>${en.local_descarga || ''}</td>
+                  <td>${en.data}</td>
+                  <td>
+                    <span class="badge ${en.status==='Entregue'?'entregue':'naoentregue'}">
+                      ${en.status === "Entregue" ? "Entregue" : "Não Entregue"}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="status-btn" onclick="toggleEntregaStatus(${idx})">
+                      ${en.status === "Entregue" ? "Marcar Não Entregue" : "Marcar Entregue"}
+                    </button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // ---------- ESTOQUE -----------
+    function renderEstoque() {
+      setTitle('Stock');
+      const main = document.getElementById('main-content');
+      main.innerHTML = `
+        <div class="az-table-wrap">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:18px;">
+            <button id="btnNovoProdutoEstoque" style="background: #04243d;color: #fff;padding: 0.67em 1.5em;font-size: 1rem;font-weight: 600;border: none;border-radius: 7px;box-shadow: 0 1px 8px rgba(4,36,61,0.06);cursor: pointer;">
+              + Novo Produto
+            </button>
+          </div>
+          <table class="az-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Quantidade</th>
+                <th>Preço Unitário (€)</th>
+                <th>Descrição</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="estoqueTableBody"></tbody>
+          </table>
+        </div>
+      `;
+      document.getElementById('btnNovoProdutoEstoque').onclick = ()=>openEstoqueModal(null);
+      renderEstoqueTable();
+    }
+    function renderEstoqueTable() {
+      const tbody = document.getElementById('estoqueTableBody');
+      tbody.innerHTML = db.estoque.length === 0
+        ? `<tr><td colspan="5" style="text-align:center;color:#888;padding:2em;">Nenhum produto no stock.</td></tr>`
+        : db.estoque.map((p, idx) => `
+          <tr>
+            <td>${p.nome}</td>
+            <td style="text-align:center;">${p.quantidade}</td>
+            <td style="text-align:center;">${Number(p.preco).toFixed(2)}</td>
+            <td>${p.descricao ? p.descricao.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}</td>
+            <td>
+              <button class="stock-edit-btn" onclick="openEstoqueModal(${idx})">Editar</button>
+              <button class="stock-cancel-btn" onclick="removerProdutoEstoque(${idx})">Eliminar</button>
+            </td>
+          </tr>
+        `).join('');
+    }
+    window.openEstoqueModal = function(idx) {
+      document.getElementById('estoqueModalBg').style.display = 'flex';
+      document.getElementById('estoqueForm').reset();
+      document.getElementById('estoqueEditIdx').value = idx != null ? idx : '';
+      if (idx != null && db.estoque[idx]) {
+        document.getElementById('estoqueModalTitle').innerText = 'Editar Produto';
+        document.getElementById('estoqueNome').value = db.estoque[idx].nome;
+        document.getElementById('estoqueQtd').value = db.estoque[idx].quantidade;
+        document.getElementById('estoquePreco').value = db.estoque[idx].preco;
+        document.getElementById('estoqueDesc').value = db.estoque[idx].descricao || '';
+      } else {
+        document.getElementById('estoqueModalTitle').innerText = 'Novo Produto';
+      }
+    }
+    function closeEstoqueModal() {
+      document.getElementById('estoqueModalBg').style.display = 'none';
+    }
+    window.removerProdutoEstoque = function(idx) {
+      if (confirm('Tem certeza que deseja remover este produto do stock?')) {
+        db.estoque.splice(idx, 1);
+        saveDB();
+        renderEstoqueTable();
+        renderDashboard();
+      }
+    }
+    document.getElementById('estoqueForm').onsubmit = function(e) {
+      e.preventDefault();
+      const idx = document.getElementById('estoqueEditIdx').value;
+      const nome = document.getElementById('estoqueNome').value.trim();
+      const quantidade = Number(document.getElementById('estoqueQtd').value);
+      const preco = Number(document.getElementById('estoquePreco').value);
+      const descricao = document.getElementById('estoqueDesc').value.trim();
+      if (!nome || isNaN(quantidade) || isNaN(preco)) return;
+      if (idx !== '') {
+        // Editar
+        db.estoque[idx] = {nome, quantidade, preco, descricao};
+      } else {
+        // Novo
+        db.estoque.push({nome, quantidade, preco, descricao});
+      }
+      saveDB();
+      closeEstoqueModal();
+      // Permanece na página de stock ao adicionar/salvar
+      renderEstoque();
+    };
+
+    // ---------- /ESTOQUE ----------
+
+    window.togglePagamentoStatus = function(idx) {
+      if (db.pagamentos[idx]) {
+        const pg = db.pagamentos[idx];
+        pg.status = pg.status === "Pago" ? "Pendente" : "Pago";
+        saveDB();
+        if (pg.status === "Pago") {
+          addEntregaFromPagamento(pg);
+        } else {
+          removeEntregaByPagamentoId(pg.id);
+        }
+        showCurrentPage();
+      }
+    };
+    window.toggleEntregaStatus = function(idx) {
+      if (db.entregas[idx]) {
+        db.entregas[idx].status = db.entregas[idx].status === "Entregue" ? "Não Entregue" : "Entregue";
+        saveDB();
+        showCurrentPage();
+      }
+    };
+    function openPedidoModal() {
+      document.getElementById('pedidoModalBg').style.display = 'flex';
+      document.getElementById('pedidoForm').reset();
+      document.getElementById('pedidoForm').dataEditing = null;
+    }
+    function closePedidoModal() {
+      document.getElementById('pedidoModalBg').style.display = 'none';
+    }
+    document.getElementById('pedidoForm').onsubmit = function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const nextPedidoId = (db.pedidos.at(-1)?.id || 100) + 1;
+      const novoPedido = {
+        id: nextPedidoId,
+        cliente: form.cliente.value,
+        email: form.email.value,
+        data: form.data.value,
+        quantidade: Number(form.quantidade.value),
+        valor: Number(form.valor.value),
+        detalhes: form.detalhes.value,
+        local_carga: form.local_carga.value,
+        local_descarga: form.local_descarga.value
+      };
+      db.pedidos.push(novoPedido);
+      saveDB();
+      db.pagamentos.push({
+        id: nextPedidoId,
+        cliente: novoPedido.cliente,
+        valor: novoPedido.valor,
+        data: novoPedido.data,
+        status: "Pendente"
+      });
+      saveDB();
+      closePedidoModal();
+      showCurrentPage();
+    };
+    document.getElementById('nav-dashboard').onclick = (e)=>{
+      e.preventDefault();
+      setActiveNav('nav-dashboard');
+      currentPage = 'dashboard';
+      renderDashboard();
+    };
+    document.getElementById('nav-pedidos').onclick = (e)=>{
+      e.preventDefault();
+      setActiveNav('nav-pedidos');
+      currentPage = 'pedidos';
+      renderPedidos();
+    };
+    document.getElementById('nav-pagamentos').onclick = (e)=>{
+      e.preventDefault();
+      setActiveNav('nav-pagamentos');
+      currentPage = 'pagamentos';
+      renderPagamentos();
+    };
+    document.getElementById('nav-entregas').onclick = (e)=>{
+      e.preventDefault();
+      setActiveNav('nav-entregas');
+      currentPage = 'entregas';
+      renderEntregas();
+    };
+    document.getElementById('nav-estoque').onclick = (e)=>{
+      e.preventDefault();
+      setActiveNav('nav-estoque');
+      currentPage = 'estoque';
+      renderEstoque();
+    };
+    renderDashboard();
   </script>
 </body>
 </html>
