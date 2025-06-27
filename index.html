@@ -254,7 +254,7 @@
     }
     .az-table th, .az-table td {
       padding: 1.1em 0.8em;
-      text-align: left;
+      text-align: center !important;
       font-size: 1.08rem;
     }
     .az-table th {
@@ -455,9 +455,6 @@
       text-align: center;
     }
     /* STOCK styles: center numbers */
-    .az-table th, .az-table td {
-      text-align: center !important;
-    }
     .az-table .stock-number {
       display: flex;
       flex-direction: column;
@@ -925,8 +922,8 @@
                     <td>${item.nome}</td>
                     <td>${item.descricao || ''}</td>
                     <td class="stock-number">${item.quantidade}</td>
-                    <td class="stock-number">${Number(item.valor).toFixed(2)}</td>
-                    <td class="stock-number">${(item.quantidade * item.valor).toFixed(2)}</td>
+                    <td class="stock-number"></td>
+                    <td class="stock-number"></td>
                   </tr>
                 `).join('')}
             </tbody>
