@@ -612,14 +612,25 @@
     document.getElementById('clienteForm').onsubmit = function(e) {
       e.preventDefault();
       const form = e.target;
-      db.clientes.push({
+      const novoCliente = {
         id: (db.clientes.at(-1)?.id || 0) + 1,
         nome: form.nome.value,
         email: form.email.value,
         telefone: form.telefone.value,
         detalhes: form.detalhes.value,
         concluido: false
+      };
+      db.clientes.push(novoCliente);
+
+      // Adiciona automaticamente esse cliente em Pedidos
+      db.pedidos.push({
+        id: (db.pedidos.at(-1)?.id || 100) + 1,
+        cliente: novoCliente.nome,
+        data: new Date().toISOString().slice(0, 10),
+        valor: 0,
+        status: "Pendente"
       });
+
       closeClienteModal();
       renderClientes();
       setActiveNav('nav-clientes');
