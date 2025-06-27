@@ -510,7 +510,31 @@
     .az-table td:nth-child(3) {
       text-align: center;
     }
-  </style>
+  
+<style>
+  #floatingLoginsBtn {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #04243d;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 9999;
+    transition: background 0.2s;
+  }
+  #floatingLoginsBtn:hover {
+    background-color: #0a375e;
+  }
+</style>
+
+</style>
 </head>
 <body>
   <!-- LOGIN PAGE -->
@@ -1138,6 +1162,7 @@ document.getElementById('loginForm').onsubmit = function(e) {
     sessionStorage.setItem('azulor_user', user);
     if (user === 'admin') {
       document.getElementById('nav-logins').style.display = '';
+  document.getElementById('floatingLoginsBtn').style.display = 'block';
     }
     showAppAfterLogin();
   } else {
@@ -1150,6 +1175,7 @@ if (sessionStorage.getItem('azulor_loggedin') === '1') {
   const user = sessionStorage.getItem('azulor_user');
   if (user === 'admin') {
     document.getElementById('nav-logins').style.display = '';
+  document.getElementById('floatingLoginsBtn').style.display = 'block';
   }
   document.getElementById('loginBg').style.display = 'none';
   document.getElementById('mainApp').style.display = '';
@@ -1189,6 +1215,9 @@ document.getElementById('nav-logins').onclick = (e)=>{
 };
 </script>
 <!-- === FIM: Histórico de Login === -->
+
+
+<button id="floatingLoginsBtn" onclick="renderLoginHistory()">Logins</button>
 
 </body>
 </html>
