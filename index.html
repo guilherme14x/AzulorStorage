@@ -280,8 +280,8 @@
       font-weight:600;
       font-size:0.97em;
     }
-    .badge.pago { background:#e8f5e9; color:#388e3c; }
-    .badge.pendente { background:#fffbe6; color:#b26a00; }
+    .badge.pago, .badge.entregue { background:#e8f5e9; color:#388e3c; }
+    .badge.pendente, .badge.naoentregue { background:#fffbe6; color:#b26a00; }
     .modal-bg {
       display:none;
       position:fixed;
@@ -374,6 +374,7 @@
         <button class="nav-link active" id="nav-dashboard">Dashboard</button>
         <button class="nav-link" id="nav-pedidos">Pedidos</button>
         <button class="nav-link" id="nav-pagamentos">Pagamentos</button>
+        <button class="nav-link" id="nav-entregas">Entregas</button>
       </nav>
     </div>
     <div class="main-content-area">
@@ -411,13 +412,15 @@
     // Persistent DB: load from localStorage or start empty
     let db = {
       pedidos: [],
-      pagamentos: []
+      pagamentos: [],
+      entregas: []
     };
     const dbSaved = localStorage.getItem('azulor_db');
     if (dbSaved) {
-      try { db = JSON.parse(dbSaved); } catch (e) { }
+      try { db = JSON.parse(dbSaved); } catch (e) {}
       db.pedidos = db.pedidos || [];
       db.pagamentos = db.pagamentos || [];
+      db.entregas = db.entregas || [];
     }
     function saveDB() {
       localStorage.setItem('azulor_db', JSON.stringify(db));
@@ -445,6 +448,10 @@
           <div class="dashboard-card">
             <div class="card-label">Pagamentos</div>
             <div class="card-value">${db.pagamentos.length}</div>
+          </div>
+          <div class="dashboard-card">
+            <div class="card-label">Entregas</div>
+            <div class="card-value">${db.entregas.length}</div>
           </div>
         </div>
         <div class="dashboard-info">
@@ -537,12 +544,63 @@
       `;
     }
 
+    // Entregas
+    function renderEntregas() {
+      setTitle('Entregas');
+      const main = document.getElementById('main-content');
+      main.innerHTML = `
+        <div class="az-table-wrap">
+          <table class="az-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Valor (€)</th>
+                <th>Data</th>
+                <th>Status</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${db.entregas.map((en, idx) => `
+                <tr>
+                  <td>${en.id}</td>
+                  <td>${en.cliente}</td>
+                  <td style="text-align:right;">${en.valor.toFixed(2)}</td>
+                  <td>${en.data}</td>
+                  <td>
+                    <span class="badge ${en.status==='Entregue'?'entregue':'naoentregue'}">
+                      ${en.status === "Entregue" ? "Entregue" : "Não Entregue"}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="status-btn" onclick="toggleEntregaStatus(${idx})">
+                      ${en.status === "Entregue" ? "Marcar Não Entregue" : "Marcar Entregue"}
+                    </button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
     // Troca status pagamento
     window.togglePagamentoStatus = function(idx) {
       if (db.pagamentos[idx]) {
         db.pagamentos[idx].status = db.pagamentos[idx].status === "Pago" ? "Pendente" : "Pago";
         saveDB();
         renderPagamentos();
+      }
+    };
+
+    // Troca status entrega
+    window.toggleEntregaStatus = function(idx) {
+      if (db.entregas[idx]) {
+        db.entregas[idx].status = db.entregas[idx].status === "Entregue" ? "Não Entregue" : "Entregue";
+        saveDB();
+        renderEntregas();
       }
     };
 
@@ -579,9 +637,20 @@
       });
       saveDB();
 
+      // Adiciona em entregas automaticamente, status "Não Entregue"
+      db.entregas.push({
+        id: nextPedidoId,
+        cliente: novoPedido.cliente,
+        valor: novoPedido.valor,
+        data: novoPedido.data,
+        status: "Não Entregue"
+      });
+      saveDB();
+
       closePedidoModal();
       renderPedidosTable();
-      renderPagamentos(); // Atualiza pagamentos se já estiver na tela
+      renderPagamentos();
+      renderEntregas();
     };
 
     // Navigation events
@@ -599,6 +668,11 @@
       e.preventDefault();
       setActiveNav('nav-pagamentos');
       renderPagamentos();
+    };
+    document.getElementById('nav-entregas').onclick = (e)=>{
+      e.preventDefault();
+      setActiveNav('nav-entregas');
+      renderEntregas();
     };
 
     // Initial page
